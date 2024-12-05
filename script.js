@@ -39,7 +39,7 @@ function addPlayer() {
     const playerName = document.getElementById('player-name').value.trim();
     if (playerName.length > 0) {
         players.push(playerName);
-        scores.push(Array(NUM_HOLES).fill(0));
+        scores.push(Array(NUM_HOLES).fill(0)); // Initialize scores for new player
         document.getElementById('player-name').value = '';
         saveToLocalStorage();
         updateDisplay();
@@ -61,21 +61,23 @@ function updateScoreTable() {
     let tableHTML = `<tr><th>Hole</th>${players.map(p => `<th>${p}</th>`).join('')}</tr>`;
 
     for (let i = 0; i < NUM_HOLES; i++) {
-        tableHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><input type="number" data-player="${index}" data-hole="${i}" value="${s[i]}"></td>`).join('')}</tr>`;
+        tableHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><input type="number" data-player="${index}" data-hole="${i}" value="${s[i]}" inputmode="numeric"></td>`).join('')}</tr>`;
     }
     scoreTable.innerHTML = tableHTML;
-    scoreTable.addEventListener("change", handleScoreChange);
+    scoreTable.addEventListener('input', handleScoreChange);
 }
 
 function handleScoreChange(event) {
     const input = event.target;
+    if (input.type !== 'number') return; //only process number inputs
+
     const playerIndex = parseInt(input.dataset.player, 10);
     const holeIndex = parseInt(input.dataset.hole, 10);
     let newScore = input.value;
 
     if (isNaN(newScore)) {
         alert("Please enter a valid number.");
-        input.value = scores[playerIndex][holeIndex];
+        input.value = scores[playerIndex][holeIndex]; //reset to previous value
         return;
     } else {
         newScore = parseInt(newScore, 10);

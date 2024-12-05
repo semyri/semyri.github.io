@@ -6,6 +6,7 @@ body {
   color: lime;
   font-size: 18px;
   -webkit-text-size-adjust: none;
+  touch-action: manipulation;
 }
 
 #player-entry, #scorecard, #round-summary {
@@ -93,22 +94,25 @@ input[type="number"] {
 }
 
 /* Media Query for smaller screens */
-@media (max-width: 250px) {
+@media (max-width: 768px) { 
     body {
         font-size: 14px;
     }
     #player-entry input[type="text"] {
         font-size: 14px;
     }
-    th, td {
+    table {
         font-size: 14px;
-        padding: 3px;
-        width: 35px;
+    }
+    th, td {
+        padding: 4px;
+        width: 1em;
     }
     input[type="number"] {
         font-size: 14px;
+        width: 100%;
     }
     #round-summary {
-        font-size: 1em; /* Slightly smaller font size */
+        font-size: 1em; 
     }
 }
