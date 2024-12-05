@@ -1,62 +1,70 @@
 body {
-  font-family: sans-serif;
-  line-height: 1.4;
-  margin: 0;
-  background-color: black;
-  color: lime;
-  font-size: 18px;
-  -webkit-text-size-adjust: none;
-  touch-action: manipulation;
+    font-family: sans-serif;
+    line-height: 1.4;
+    margin: 0;
+    background-color: black;
+    color: lime;
+    font-size: 18px;
+    -webkit-text-size-adjust: none;
+    touch-action: manipulation;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
 }
 
-#player-entry, #scorecard, #round-summary {
-  margin-bottom: 10px;
-  padding: 5px;
-  background-color: #222;
-}
-
-#player-entry label, #player-entry button {
-  display: block;
-  margin-bottom: 5px;
-}
-
-#player-entry input[type="text"] {
-  width: calc(100% - 10px);
-  padding: 3px;
-  border: none;
-  border-radius: 3px;
-  background-color: #333;
-  color: lime;
-  font-size: 16px;
-}
-
-#player-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 5px 0;
-}
-
-#player-list li {
-  margin-bottom: 2px;
-}
-
-/* Round Summary Styles */
-#round-summary {
+.main-container { 
     display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
-    font-size: 1.2em;
+    flex-direction: column; 
+    align-items: center; 
+    width: 80%; 
+    max-width: 600px; 
+    background-color: #222;
     padding: 10px;
-    white-space: nowrap;
-    overflow-x: auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
 }
 
-/* Score Table Styles */
-.score-table-container {
-    overflow-x: auto;
-    overflow-y: auto;
-    max-height: 70vh;
-    width: 95vw;
+#player-entry, #scorecard, #round-summary, #new-round-button-container {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+.number-popup {
+    position: fixed; 
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1000;
+    border-radius: 5px;
+    transform: translate(-50%, -50%); 
+}
+
+.popup-content {
+    display: flex;
+    align-items: center;
+}
+
+.popup-display {
+    margin: 0 10px;
+    font-size: 18px;
+}
+
+.close-popup {
+    margin-top: 10px;
+    display: block;
+}
+
+.number-picker {
+    width: 40px;
+    height: 40px;
+    border: 1px solid black;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 table {
@@ -80,39 +88,6 @@ th {
     font-size: 18px;
 }
 
-/*Added Styles for Number Picker*/
-.number-popup {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 10px;
-    z-index: 1000; 
-    border-radius: 5px;
-}
-
-.popup-content {
-    display: flex;
-    align-items: center;
-}
-
-.popup-display {
-    margin: 0 10px;
-    font-size: 18px;
-}
-
-.close-popup {
-    margin-top: 10px;
-    display: block;
-}
-.number-picker{
-    width: 40px;
-    height: 40px;
-    border: 1px solid black;
-    text-align: center;
-    line-height: 40px;
-    cursor: pointer;
-
-}
 
 /* Media Query for smaller screens */
 @media (max-width: 768px) { 

@@ -6,26 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-    <div id="round-summary" style="display:none;">
-        <div id="summary-content"></div> 
-    </div>
+    <div class="main-container">
+        <div id="round-summary" style="display:none;">
+            <div id="summary-content"></div> 
+        </div>
 
-    <div id="player-entry">
-        <ul id="player-list"></ul>
-        <input type="text" id="player-name" placeholder="Add Player Name" autofocus> 
-        <button type="button" id="addPlayerButton">Add Player</button>
-        <button type="button" id="startRoundButton">Start Round</button>
-    </div>
+        <div id="player-entry">
+            <ul id="player-list"></ul>
+            <input type="text" id="player-name" placeholder="Add Player Name" autofocus> 
+            <button type="button" id="addPlayerButton">Add Player</button>
+            <button type="button" id="startRoundButton">Start Round</button>
+        </div>
 
-    <div class="score-table-container">  
-        <div id="scorecard" style="display: none;">
-            <table id="score-table"></table>  
-        </div> 
-    </div>  
+        <div class="score-table-container">  
+            <div id="scorecard" style="display: none;">
+                <table id="score-table"></table>  
+            </div> 
+        </div>  
 
-    <div id="new-round-button-container" style="display: none;">  
-        <button id="newRoundButton">New Round</button>
-    </div>
+        <div id="new-round-button-container" style="display: none;">  
+            <button id="newRoundButton">New Round</button>
+        </div>
+    </div> 
 
     <script src="script.js"></script>
 </body>
