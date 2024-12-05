@@ -7,7 +7,6 @@ let roundStarted = false;
 document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
     updateDisplay();
-    attemptFullScreen(); // Call attemptFullScreen after page load
 
     document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
     document.getElementById('startRoundButton').addEventListener('click', startRound);
@@ -180,21 +179,4 @@ function startRound() {
     } else if (players.length < 1) {
         alert("Please enter at least one player.");
     }
-}
-
-function attemptFullScreen() {
-  if (navigator.userAgent.toLowerCase().includes('watchos')) {
-    const element = document.documentElement; 
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) { 
-      element.webkitRequestFullscreen();
-    } else if (element.mozRequestFullScreen) { 
-      element.mozRequestFullScreen();
-    } else if (element.msRequestFullscreen) { 
-      element.msRequestFullscreen();
-    } else {
-      console.log("Fullscreen API not supported.");
-    }
-  }
 }
