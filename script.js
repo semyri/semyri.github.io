@@ -39,7 +39,7 @@ function addPlayer() {
     const playerName = document.getElementById('player-name').value.trim();
     if (playerName.length > 0) {
         players.push(playerName);
-        scores.push(Array(NUM_HOLES).fill(0)); // Initialize scores for new player
+        scores.push(Array(NUM_HOLES).fill(0));
         document.getElementById('player-name').value = '';
         saveToLocalStorage();
         updateDisplay();
@@ -61,31 +61,75 @@ function updateScoreTable() {
     let tableHTML = `<tr><th>Hole</th>${players.map(p => `<th>${p}</th>`).join('')}</tr>`;
 
     for (let i = 0; i < NUM_HOLES; i++) {
-        tableHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><input type="number" data-player="${index}" data-hole="${i}" value="${s[i]}" inputmode="numeric"></td>`).join('')}</tr>`;
+        tableHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><div class="number-picker" data-player="${index}" data-hole="${i}"><span class="number-display">${s[i]}</span></div></td>`).join('')}</tr>`;
     }
     scoreTable.innerHTML = tableHTML;
-    scoreTable.addEventListener('input', handleScoreChange);
+
+    // Add event listeners to number pickers after creating them
+    const numberPickers = document.querySelectorAll('.number-picker');
+    numberPickers.forEach(picker => {
+        picker.addEventListener('click', showNumberPicker);
+    });
 }
 
-function handleScoreChange(event) {
-    const input = event.target;
-    if (input.type !== 'number') return; //only process number inputs
+function showNumberPicker(event) {
+    const picker = event.target.closest('.number-picker');
+    const playerIndex = parseInt(picker.dataset.player, 10);
+    const holeIndex = parseInt(picker.dataset.hole, 10);
+    const currentScore = scores[playerIndex][holeIndex];
 
-    const playerIndex = parseInt(input.dataset.player, 10);
-    const holeIndex = parseInt(input.dataset.hole, 10);
-    let newScore = input.value;
+    // Create the popup number picker
+    const popup = document.createElement('div');
+    popup.classList.add('number-popup');
+    popup.innerHTML = `
+        <div class="popup-content">
+            <button class="decrement">-</button>
+            <span class="popup-display">${currentScore}</span>
+            <button class="increment">+</button>
+        </div>
+        <button class="close-popup">Nice</button> 
+    `;
 
-    if (isNaN(newScore)) {
-        alert("Please enter a valid number.");
-        input.value = scores[playerIndex][holeIndex]; //reset to previous value
-        return;
-    } else {
-        newScore = parseInt(newScore, 10);
-    }
+    document.body.appendChild(popup);
 
-    scores[playerIndex][holeIndex] = newScore;
-    saveToLocalStorage();
-    updateDisplay();
+    const popupDisplay = popup.querySelector('.popup-display');
+    const decrementButton = popup.querySelector('.decrement');
+    const incrementButton = popup.querySelector('.increment');
+    const closeButton = popup.querySelector('.close-popup');
+
+    let selectedScore = currentScore;
+    popupDisplay.textContent = selectedScore;
+
+    decrementButton.addEventListener('click', () => {
+        selectedScore = Math.max(-2, selectedScore - 1); 
+        popupDisplay.textContent = selectedScore;
+    });
+
+    incrementButton.addEventListener('click', () => {
+        selectedScore = Math.min(8, selectedScore + 1); 
+        popupDisplay.textContent = selectedScore;
+    });
+
+    closeButton.addEventListener('click', () => {
+        scores[playerIndex][holeIndex] = selectedScore;
+        picker.querySelector('.number-display').textContent = selectedScore;
+        document.body.removeChild(popup);
+        saveToLocalStorage();
+        updateDisplay();
+    });
+
+    // Center the popup
+    const popupWidth = popup.offsetWidth;
+    const popupHeight = popup.offsetHeight;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const left = (windowWidth - popupWidth) / 2;
+    const top = (windowHeight - popupHeight) / 2;
+
+    popup.style.left = `${left}px`;
+    popup.style.top = `${top}px`;
+    popup.style.position = 'fixed'; 
 }
 
 function updateSummaryTable() {
