@@ -4,10 +4,13 @@ let scores = [];
 let currentHole = 1;
 let roundStarted = false;
 
-// Load data from localStorage on page load. Check for existing data before setting initial state.
 document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
     updateDisplay();
+
+    document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
+    document.getElementById('startRoundButton').addEventListener('click', startRound);
+    document.getElementById('newRoundButton').addEventListener('click', newRound);
 });
 
 function loadFromLocalStorage() {
@@ -55,11 +58,12 @@ function updatePlayerList() {
 
 function updateScoreTable() {
     const scoreTable = document.getElementById('score-table');
-    scoreTable.innerHTML = `<tr><th>Hole</th>${players.map(p => `<th>${p}</th>`).join('')}</tr>`;
+    let tableHTML = `<tr><th>Hole</th>${players.map(p => `<th>${p}</th>`).join('')}</tr>`;
 
     for (let i = 0; i < NUM_HOLES; i++) {
-        scoreTable.innerHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><input type="number" data-player="${index}" data-hole="${i}" value="${s[i]}"></td>`).join('')}</tr>`;
+        tableHTML += `<tr><td>${i + 1}</td>${scores.map((s, index) => `<td><input type="number" data-player="${index}" data-hole="${i}" value="${s[i]}"></td>`).join('')}</tr>`;
     }
+    scoreTable.innerHTML = tableHTML;
     scoreTable.addEventListener("change", handleScoreChange);
 }
 
@@ -71,7 +75,6 @@ function handleScoreChange(event) {
 
     if (isNaN(newScore)) {
         alert("Please enter a valid number.");
-        // Restore previous value
         input.value = scores[playerIndex][holeIndex];
         return;
     } else {
@@ -84,17 +87,13 @@ function handleScoreChange(event) {
 }
 
 function updateSummaryTable() {
-    const summaryTable = document.getElementById('summary-table');
+    const summaryContent = document.getElementById('summary-content');
     if (roundStarted) {
-        summaryTable.innerHTML = `<tr><th>Player</th><th>Total Score</th></tr>`;
         const totalScores = scores.map(playerScores => playerScores.reduce((a, b) => a + b, 0));
-        for (let i = 0; i < players.length; i++) {
-            const totalScore = totalScores[i];
-            summaryTable.innerHTML += `<tr><td>${players[i]}</td><td>${totalScore}</td></tr>`;
-        }
-        summaryTable.style.display = 'block';
+        summaryContent.innerHTML = players.map((player, index) => `${player}: ${totalScores[index]}`).join(' | ');
+        summaryContent.style.display = 'block';
     } else {
-        summaryTable.style.display = 'none';
+        summaryContent.style.display = 'none';
     }
 }
 
@@ -107,6 +106,7 @@ function updateDisplay() {
     roundSummary.style.display = roundStarted ? 'block' : 'none';
     const newRoundButtonContainer = document.getElementById('new-round-button-container');
     newRoundButtonContainer.style.display = roundStarted ? 'block' : 'none';
+
     updatePlayerList();
     updateScoreTable();
     updateSummaryTable();
@@ -126,12 +126,11 @@ function newRound() {
 }
 
 function startRound() {
-    if (players.length > 0 && !roundStarted) {
+    if (players.length >= 1 && !roundStarted) {
         roundStarted = true;
         updateDisplay();
+        saveToLocalStorage();
+    } else if (players.length < 1) {
+        alert("Please enter at least one player.");
     }
 }
-
-document.getElementById('newRoundButton').addEventListener('click', newRound);
-document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
-document.getElementById('startRoundButton').addEventListener('click', startRound);
