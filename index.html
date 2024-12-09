@@ -1,33 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Disc Golf Scorecard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disc Golf Score App</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-    <div class="main-container">
-        <div id="round-summary" style="display:none;">
-            <div id="summary-content"></div> 
+    <div id="app">
+        <div class="new-round-container">
+            <button id="new-round">New Round</button>
         </div>
 
-        <div id="player-entry">
+        <div class="start-screen">
+            <h1>Disc Golf Score</h1>
+            <div class="player-input-area">
+                <input type="text" id="player-name" placeholder="Enter Player Name">
+                <button id="add-player">Add Player</button>
+            </div>
             <ul id="player-list"></ul>
-            <input type="text" id="player-name" placeholder="Add Player Name" autofocus> 
-            <button type="button" id="addPlayerButton">Add Player</button>
-            <button type="button" id="startRoundButton">Start Round</button>
+            <button id="start-game" disabled>Start Game</button>
         </div>
 
-        <div class="score-table-container">  
-            <div id="scorecard" style="display: none;">
-                <table id="score-table"></table>  
-            </div> 
-        </div>  
-
-        <div id="new-round-button-container" style="display: none;">  
-            <button id="newRoundButton">New Round</button>
+        <div class="game-screen hidden">
+            <div class="top-bar">
+                <div class="current-hole">Hole: <span id="hole-number">1</span></div>
+                <div id="total-scores"></div>
+            </div>
+            <div class="score-input-area"></div>
+            <div class="number-pad hidden"></div>
+            <div class="button-container">
+                <button id="prev-hole">Previous Hole</button>
+                <button id="next-hole">Next Hole</button>
+            </div>
+            <button id="view-scorecard">Scorecard</button>
         </div>
-    </div> 
+
+        <div class="scorecard-screen hidden">
+            <h2>Scorecard</h2>
+            <table id="scorecard-table"></table>
+            <button id="back-to-game">Back to Game</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
