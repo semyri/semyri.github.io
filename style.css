@@ -219,7 +219,7 @@ body {
 /* New Round Button Styles */
 .new-round-container {
     position: fixed; /* Updated: Always visible */
-    bottom: 60px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%); /* Center horizontally */
     width: 100%;
