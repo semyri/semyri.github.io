@@ -4,41 +4,28 @@ const reel3 = document.getElementById('reel3');
 const message = document.getElementById('message');
 const currentBetSpan = document.getElementById('current-bet');
 const currentCreditsSpan = document.getElementById('current-credits');
+const decreaseBetButton = document.getElementById('decreaseBet');
+const increaseBetButton = document.getElementById('increaseBet');
+const maxBetButton = document.getElementById('maxBet');
 
 // Symbols
-const symbols = ['!', '+', '-', 'x', '/', '7', '*'];
+const symbols = ['!', 'X', '+', '-', '/', '*', '7']; // 7 is the wildcard
 
-// Payout Table
+// Payout Table (Updated for new symbols)
 const payoutTable = {
-    '!': {
-        3: 2,
-        2: 1
-    },
-    '+': {
-        3: 5,
-        2: 2
-    },
-    '-': {
-        3: 8,
-        2: 4
-    },
-    'x': {
-        3: 10
-    },
-    '/': {
-        3: 15
-    },
-    '7': {
-        3: 20
-    },
-    '*': {
-        3: 50
-    }
+    '!': { 3: 2, 2: 1 },
+    'X': { 3: 5, 2: 2 },
+    '+': { 3: 8, 2: 4 },
+    '-': { 3: 10, 2: 5 },
+    '/': { 3: 15, 2: 8 },
+    '*': { 3: 20, 2: 10 },
+    '7': { 3: 50, 2: 25 } // Wildcard payouts
 };
 
 let spinning = false;
 let credits = 100;
 let betAmount = 1;
+const maxBet = 50;
 
 // Web Audio API for Sound Effects
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -162,15 +149,22 @@ function checkWin(symbol1, symbol2, symbol3) {
     // Check for three of a kind
     if (symbol1 === symbol2 && symbol2 === symbol3) {
         winAmount = payoutTable[symbol1][3] * betAmount;
-    } else { // Check for two of a kind 
-        if (symbol1 === symbol2 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
-            winAmount = Math.max(winAmount, payoutTable[symbol1][2] * betAmount);
+    } else {
+        // Check for two of a kind with wildcard
+        if (symbol1 === symbol2 && symbol3 === '7') {
+            winAmount = payoutTable[symbol1][2] * betAmount;
+        } else if (symbol1 === symbol3 && symbol2 === '7') {
+            winAmount = payoutTable[symbol1][2] * betAmount;
+        } else if (symbol2 === symbol3 && symbol1 === '7') {
+            winAmount = payoutTable[symbol2][2] * betAmount;
         }
-        if (symbol1 === symbol3 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
-            winAmount = Math.max(winAmount, payoutTable[symbol1][2] * betAmount);
-        }
-        if (symbol2 === symbol3 && payoutTable[symbol2] && payoutTable[symbol2][2]) {
-            winAmount = Math.max(winAmount, payoutTable[symbol2][2] * betAmount);
+        // Check for two of a kind without wildcard
+        else if (symbol1 === symbol2) {
+            winAmount = payoutTable[symbol1][2] * betAmount;
+        } else if (symbol1 === symbol3) {
+            winAmount = payoutTable[symbol1][2] * betAmount;
+        } else if (symbol2 === symbol3) {
+            winAmount = payoutTable[symbol2][2] * betAmount;
         }
     }
 
@@ -192,6 +186,12 @@ function checkWin(symbol1, symbol2, symbol3) {
 
 function changeBet(amount) {
     betAmount = Math.max(1, betAmount + amount); // Ensure bet is at least 1
+    betAmount = Math.min(betAmount, credits); // Ensure bet is not more than credits
+    currentBetSpan.textContent = betAmount;
+}
+
+function handleMaxBet() {
+    betAmount = Math.min(maxBet, credits); // Set bet to max allowed or current credits, whichever is lower
     currentBetSpan.textContent = betAmount;
 }
 
@@ -244,6 +244,11 @@ function loadGame() {
 function updateCreditsDisplay() {
     currentCreditsSpan.textContent = credits;
 }
+
+// Event listeners for bet adjustment buttons
+decreaseBetButton.addEventListener('click', () => changeBet(-1));
+increaseBetButton.addEventListener('click', () => changeBet(1));
+maxBetButton.addEventListener('click', handleMaxBet);
 
 // Initialize the game on page load
 loadGame();
