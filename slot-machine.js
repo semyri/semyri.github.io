@@ -157,21 +157,20 @@ async function spin() {
 }
 
 function checkWin(symbol1, symbol2, symbol3) {
-    const symbols = [symbol1, symbol2, symbol3];
     let winAmount = 0;
 
     // Check for three of a kind
     if (symbol1 === symbol2 && symbol2 === symbol3) {
         winAmount = payoutTable[symbol1][3] * betAmount;
-    } else {
-        // Check for two of a kind (more complex logic for multiple pairs)
-        for (let i = 0; i < symbols.length; i++) {
-            for (let j = i + 1; j < symbols.length; j++) {
-                if (symbols[i] === symbols[j]) {
-                    if (payoutTable[symbols[i]][2])
-                        winAmount = Math.max(winAmount, payoutTable[symbols[i]][2] * betAmount);
-                }
-            }
+    } else { // Check for two of a kind 
+        if (symbol1 === symbol2 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
+            winAmount = Math.max(winAmount, payoutTable[symbol1][2] * betAmount);
+        }
+        if (symbol1 === symbol3 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
+            winAmount = Math.max(winAmount, payoutTable[symbol1][2] * betAmount);
+        }
+        if (symbol2 === symbol3 && payoutTable[symbol2] && payoutTable[symbol2][2]) {
+            winAmount = Math.max(winAmount, payoutTable[symbol2][2] * betAmount);
         }
     }
 
@@ -197,16 +196,19 @@ function changeBet(amount) {
 }
 
 function resetGame() {
-    credits = 100; // Reset credits to 100
-    betAmount = 1;
-    message.textContent = '';
-    message.className = '';
-    currentBetSpan.textContent = betAmount;
-    updateCreditsDisplay(); // Update credits display after reset
-    createReel(reel1);
-    createReel(reel2);
-    createReel(reel3);
-    localStorage.removeItem('slotMachine');
+    // Ask for confirmation before resetting
+    if (confirm('Are you sure you want to start a new game?')) {
+        credits = 100; // Reset credits to 100
+        betAmount = 1;
+        message.textContent = '';
+        message.className = '';
+        currentBetSpan.textContent = betAmount;
+        updateCreditsDisplay(); // Update credits display after reset
+        createReel(reel1);
+        createReel(reel2);
+        createReel(reel3);
+        localStorage.removeItem('slotMachine');
+    }
 }
 
 function saveGame() {
