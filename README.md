@@ -1,1 +1,1 @@
-you can score golf with this, my plan was to make it work for apple watches, you will need to have a browser installed
+this is now a compilation of retro old school games, helped extensively by ai, i am new and have very little coding experience 
