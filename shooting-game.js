@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
-const highScoreDisplay = document.getElementById('highScore'); // Get the high score element
+const highScoreDisplay = document.getElementById('highScore');
 
 // Game States
 const GAME_STATE = {
@@ -12,7 +12,7 @@ const GAME_STATE = {
 
 // Game Variables
 let score = 0;
-let highScore = localStorage.getItem('highScore') || 0; // Get high score from localStorage
+let highScore = localStorage.getItem('highScore') || 0;
 let targetsMissed = 0;
 let maxTargetsMissed = 3;
 let gameState = GAME_STATE.MENU;
@@ -21,8 +21,8 @@ let explosions = [];
 
 // Player Object
 const player = {
-    x: 0, // Will be initialized in resetGame()
-    y: 0, // Will be initialized in resetGame()
+    x: 0,
+    y: 0,
     width: 50,
     height: 50,
     speed: 0,
@@ -432,6 +432,17 @@ function resetGame() {
     scoreDisplay.textContent = "Score: " + score;
     targetParams.baseSpeed = 1;
 }
+
+// Event listeners for buttons
+const newGameButton = document.getElementById('newGameButton');
+const backToMainButton = document.getElementById('backToMainButton');
+
+newGameButton.addEventListener('click', function() {
+    if (gameState === GAME_STATE.GAME_OVER || gameState === GAME_STATE.MENU) {
+        resetGame();
+        startGame();
+    }
+});
 
 // Initialize and start the game
 initGame();

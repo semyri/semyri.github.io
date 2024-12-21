@@ -44,7 +44,7 @@
         }
 
         /* Styling for the "Back to Main Page" link */
-        a[href="index.html"] {
+        a {
             display: inline-block;
             padding: 8px 16px;
             background-color: #00AA00;
@@ -56,7 +56,7 @@
             font-family: 'Press Start 2P', cursive;
         }
 
-        a[href="index.html"]:hover {
+        a:hover {
             background-color: #00CC00;
         }
     </style>
@@ -67,6 +67,11 @@
 
     <canvas id="gameCanvas" width="600" height="400"></canvas>
     <p id="score">Score: 0</p>
-    <p id="highScore">High Score: 0</p> <script src="shooting-game.js"></script>
+    <p id="highScore">High Score: 0</p>
+
+    <button id="newGameButton">New Game</button>
+    <a href="index.html" id="backToMainButton">Back to Main Page</a>
+
+    <script src="shooting-game.js"></script>
 </body>
 </html>
