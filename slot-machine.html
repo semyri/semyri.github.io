@@ -29,11 +29,28 @@
             text-align: center;
             font-size: 24px;
             line-height: 120px; /* Vertically center symbols */
+            position: relative; /* Important for positioning symbols */
         }
 
         .symbol {
             display: block;
             height: 120px;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            transition: top 0.1s ease-in-out; /* Smooth transition for top property */
+        }
+
+        .symbol.old {
+            top: -120px; /* Position old symbols above the reel */
+        }
+
+        .symbol.current {
+            top: 0; /* Position current symbols in the center */
+        }
+
+        .symbol.new {
+            top: 120px; /* Position new symbols below the reel */
         }
 
         /* Button Styles */
@@ -49,6 +66,33 @@
 
         button:hover {
             background-color: #00CC00;
+        }
+
+        /* Message Styling */
+        #message {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        #message.win {
+            color: green;
+            font-weight: bold;
+        }
+
+        #message.lose {
+            color: red;
+        }
+
+        /* Bet amount display */
+        #bet-amount {
+            margin-top: 10px;
+            font-size: 1em;
+        }
+
+        /* Credits display */
+        #credits-display {
+            margin-top: 10px;
+            font-size: 1em;
         }
 
         /* Styling for the "Back to Main Page" link */
@@ -79,7 +123,11 @@
     </div>
 
     <p id="message"></p>
+    <p id="bet-amount">Bet Amount: <span id="current-bet">1</span></p>
+    <p id="credits-display">Credits: <span id="current-credits">100</span></p>
 
+    <button onclick="changeBet(-1)">-</button>
+    <button onclick="changeBet(1)">+</button>
     <button onclick="spin()">Spin</button>
     <button onclick="resetGame()">New Game</button>
     <a href="index.html">Back to Main Page</a>
