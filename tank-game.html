@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tank Game</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        #gameCanvas {
+            background-color: #7ec0ee; /* Sky blue color */
+            display: block;
+            margin: 20px auto;
+        }
+
+        #controls {
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        input[type="number"] {
+            width: 50px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        #turnInfo, #hitDisplay {
+            color: #FF6600;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Tank Game</h1>
+
+    <div id="controls">
+        <label for="angle">Angle:</label>
+        <input type="number" id="angle" value="45" min="0" max="90">
+        <label for="power">Power:</label>
+        <input type="number" id="power" value="50" min="1" max="100">
+        <button id="fireButton">Fire!</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <p id="turnInfo">Player 1's Turn</p>
+    <p id="hitDisplay">Hits - Player 1: 0, Player 2: 0</p>
+
+    <button onclick="resetGame()">New Game</button>
+    <a href="index.html">Back to Main Page</a>
+
+    <script src="tank-game.js"></script>
+</body>
+</html>

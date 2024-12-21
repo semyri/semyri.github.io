@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Duck Hunt</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        #gameCanvas {
+            background-color: #7ec0ee; /* Sky blue color */
+            display: block;
+            margin: 20px auto;
+            cursor: crosshair; /* Change cursor to a crosshair */
+        }
+
+        #score {
+            color: #FF6600;
+            font-size: 20px;
+        }
+
+        #message {
+            color: #00AA00;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        /* Button Styles */
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Duck Hunt</h1>
+
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <p id="score">Score: 0</p>
+    <p id="message"></p>
+
+    <button onclick="resetGame()">New Game</button>
+    <a href="index.html">Back to Main Page</a>
+
+    <script src="duck-hunt.js"></script>
+</body>
+</html>

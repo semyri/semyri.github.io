@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            background-color: #FFFF99; /* Light yellow background */
+            font-family: 'Press Start 2P', cursive; /* Example retro font */
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF6600; /* Orange */
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 60px;
+            height: 60px;
+            border: 2px solid black;
+            text-align: center;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        /* Button Styles (Consistent across all games) */
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00; /* Green */
+            color: white;
+            border: 2px solid #006600; /* Darker green border */
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px; /* Add some horizontal spacing between buttons */
+        }
+
+        button:hover {
+            background-color: #00CC00; /* Lighter green on hover */
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px; /* Add some spacing above the link */
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+
+    <table id="gameBoard">
+        <tr>
+            <td data-index="0"></td>
+            <td data-index="1"></td>
+            <td data-index="2"></td>
+        </tr>
+        <tr>
+            <td data-index="3"></td>
+            <td data-index="4"></td>
+            <td data-index="5"></td>
+        </tr>
+        <tr>
+            <td data-index="6"></td>
+            <td data-index="7"></td>
+            <td data-index="8"></td>
+        </tr>
+    </table>
+
+    <p id="message">Player X's Turn</p>
+
+    <button onclick="resetGame()">Reset Game</button>
+
+    <a href="index.html">Back to Main Page</a>
+
+    <script src="tic-tac-toe.js"></script>
+</body>
+</html>

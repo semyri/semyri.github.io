@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memory Game</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF6600;
+        }
+
+        /* Center the game container */
+        #gameContainer {
+            display: flex;
+            flex-direction: column; /* Align items vertically */
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            width: 100%; /* Take full width */
+            min-height: 100vh; /* Ensure it takes at least the full viewport height */
+        }
+
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(4, 80px); /* Adjust for more/less columns */
+            grid-gap: 10px;
+            /* Remove margin: 20px auto; */
+        }
+
+        .card {
+            width: 80px;
+            height: 80px;
+            background-color: #00AA00; /* Card back color */
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: transparent; /* Hide the symbol initially */
+            transition: background-color 0.3s;
+        }
+
+        .card.flipped {
+            background-color: #DDDDDD; /* Card front color */
+            color: black; /* Show the symbol */
+        }
+
+        .card.matched {
+            background-color: #888888;
+            color: #666666;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>Memory Game</h1>
+        <div id="gameBoard"></div>
+        <p id="message"></p>
+        <button onclick="resetGame()">New Game</button>
+        <a href="index.html">Back to Main Page</a>
+    </div>
+
+    <script src="memory-game.js"></script>
+</body>
+</html>
