@@ -221,7 +221,7 @@ function resetGame() {
         currentBetSpan.textContent = betAmount;
         updateCreditsDisplay(); // Update credits display after reset
         createReels();
-        localStorage.removeItem('slotMachine');
+        localStorage.removeItem('3xslotMachine');
     }
 }
 
@@ -239,11 +239,11 @@ function saveGame() {
         reels: reelsState,
         betAmount: betAmount
     };
-    localStorage.setItem('slotMachine', JSON.stringify(savedData));
+    localStorage.setItem('3xslotMachine', JSON.stringify(savedData));
 }
 
 function loadGame() {
-    const savedData = JSON.parse(localStorage.getItem('slotMachine'));
+    const savedData = JSON.parse(localStorage.getItem('3xslotMachine'));
     if (savedData) {
         credits = savedData.credits;
         betAmount = savedData.betAmount || 1;
