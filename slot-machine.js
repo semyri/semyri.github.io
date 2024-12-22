@@ -121,7 +121,7 @@ async function spin() {
 
         if (spinCount >= 15) {
             clearInterval(spinInterval);
-            // Stop reels individually with delays
+            // Stop reels individually with delays and get final symbols
             setTimeout(() => {
                 spinReel(reel1, true).then(symbol1 => {
                     createBeep(400, 0.1); // Slightly longer beep when reel stops
@@ -131,7 +131,15 @@ async function spin() {
                             setTimeout(() => {
                                 spinReel(reel3, true).then(symbol3 => {
                                     createBeep(400, 0.1); // Slightly longer beep when reel stops
-                                    checkWin(symbol1, symbol2, symbol3);
+
+                                    // Get the final symbols from the center of each reel
+                                    const finalSymbol1 = reel1.querySelector('.current').textContent;
+                                    const finalSymbol2 = reel2.querySelector('.current').textContent;
+                                    const finalSymbol3 = reel3.querySelector('.current').textContent;
+
+                                    // Check for win using the correct final symbols
+                                    checkWin(finalSymbol1, finalSymbol2, finalSymbol3);
+
                                     spinning = false;
                                 });
                             }, 200); // Delay for reel 3
@@ -159,11 +167,11 @@ function checkWin(symbol1, symbol2, symbol3) {
             winAmount = payoutTable[symbol2][2] * betAmount;
         }
         // Check for two of a kind without wildcard
-        else if (symbol1 === symbol2) {
+        else if (symbol1 === symbol2 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
             winAmount = payoutTable[symbol1][2] * betAmount;
-        } else if (symbol1 === symbol3) {
+        } else if (symbol1 === symbol3 && payoutTable[symbol1] && payoutTable[symbol1][2]) {
             winAmount = payoutTable[symbol1][2] * betAmount;
-        } else if (symbol2 === symbol3) {
+        } else if (symbol2 === symbol3 && payoutTable[symbol2] && payoutTable[symbol2][2]) {
             winAmount = payoutTable[symbol2][2] * betAmount;
         }
     }
@@ -250,5 +258,64 @@ decreaseBetButton.addEventListener('click', () => changeBet(-1));
 increaseBetButton.addEventListener('click', () => changeBet(1));
 maxBetButton.addEventListener('click', handleMaxBet);
 
+// Function to create the payout table
+function createPayoutTable() {
+    const tableBody = document.querySelector('#payout-table tbody');
+    tableBody.innerHTML = ''; // Clear existing table rows
+
+    // Create rows for 3 of a kind
+    for (const symbol in payoutTable) {
+        const payout = payoutTable[symbol][3];
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${symbol}</td>
+            <td>${symbol}</td>
+            <td>${symbol}</td>
+            <td>${payout}x Bet</td>
+        `;
+        tableBody.appendChild(row);
+    }
+
+    // Create rows for 2 of a kind without wildcard
+    for (const symbol in payoutTable) {
+        const payout = payoutTable[symbol][2];
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${symbol}</td>
+            <td>${symbol}</td>
+            <td>Any</td>
+            <td>${payout}x Bet</td>
+        `;
+        tableBody.appendChild(row);
+    }
+
+    // Create rows for 2 of a kind with wildcard
+    for (const symbol in payoutTable) {
+        if (symbol !== '7') {
+            const payout = payoutTable[symbol][2];
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${symbol}</td>
+                <td>${symbol}</td>
+                <td>7</td>
+                <td>${payout}x Bet</td>
+            `;
+            tableBody.appendChild(row);
+        }
+    }
+
+    // Create a row for the wildcard symbol
+    const wildcardPayout = payoutTable['7'][3];
+    const wildcardRow = document.createElement('tr');
+    wildcardRow.innerHTML = `
+        <td>7</td>
+        <td>7</td>
+        <td>7</td>
+        <td>${wildcardPayout}x Bet</td>
+    `;
+    tableBody.appendChild(wildcardRow);
+}
+
 // Initialize the game on page load
 loadGame();
+createPayoutTable();

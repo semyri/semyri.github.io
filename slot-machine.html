@@ -28,8 +28,10 @@
             margin: 0 5px;
             text-align: center;
             font-size: 24px;
-            line-height: 120px; /* Vertically center symbols */
-            position: relative; /* Important for positioning symbols */
+            line-height: 120px;
+            /* Vertically center symbols */
+            position: relative;
+            /* Important for positioning symbols */
         }
 
         .symbol {
@@ -38,19 +40,23 @@
             position: absolute;
             width: 100%;
             left: 0;
-            transition: top 0.1s ease-in-out; /* Smooth transition for top property */
+            transition: top 0.1s ease-in-out;
+            /* Smooth transition for top property */
         }
 
         .symbol.old {
-            top: -120px; /* Position old symbols above the reel */
+            top: -120px;
+            /* Position old symbols above the reel */
         }
 
         .symbol.current {
-            top: 0; /* Position current symbols in the center */
+            top: 0;
+            /* Position current symbols in the center */
         }
 
         .symbol.new {
-            top: 120px; /* Position new symbols below the reel */
+            top: 120px;
+            /* Position new symbols below the reel */
         }
 
         /* Button Styles */
@@ -95,6 +101,41 @@
             font-size: 1em;
         }
 
+        /* Payout Table Styles */
+        #payout-table {
+            margin-top: 20px;
+            color: white;
+            /* Adjust color as needed */
+        }
+
+        #payout-table h2 {
+            margin-bottom: 10px;
+        }
+
+        #payout-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #payout-table th,
+        #payout-table td {
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+        }
+
+        #payout-table th {
+            background-color: #006600;
+            /* Darker green */
+            color: white;
+        }
+
+        #payout-table td {
+            background-color: #333;
+            /* Dark background for table cells */
+            color: white;
+        }
+
         /* Styling for the "Back to Main Page" link */
         a[href="index.html"] {
             display: inline-block;
@@ -131,6 +172,24 @@
     <button id="maxBet">Max Bet</button>
     <button onclick="spin()">Spin</button>
     <button onclick="resetGame()">New Game</button>
+
+    <div id="payout-table">
+       	<h2 style="color: Green;">Payout Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol 1</th>
+                    <th>Symbol 2</th>
+                    <th>Symbol 3</th>
+                    <th>Payout</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Payout table rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+
     <a href="index.html">Back to Main Page</a>
 
     <script src="slot-machine.js"></script>
