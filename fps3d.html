@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Text FPS</title>
+<style>
+body {
+  background-color: darkblue; /* Changed background color */
+  color: white;
+  font-family: monospace;
+  user-select: none; /* Prevent text selection */
+}
+#gameCanvas {
+  white-space: pre; /* Preserve spaces and line breaks */
+  line-height: 1;
+  font-size: 20px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="gameCanvas"></div>
+
+<script>
+class Game {
+    constructor(width = 61, height = 25) {
+        this.width = width;
+        this.height = height;
+        this.vanishingPointX = Math.floor(width / 2);
+        this.vanishingPointY = Math.floor(height / 3);
+        this.playerX = Math.floor(width / 2);
+        this.playerY = height - 1;
+        this.enemies = [];
+        this.bullets = [];
+        this.enemyBullets = [];
+        this.score = 0;
+        this.gameOver = false;
+        this.enemySpawnRate = 1500;
+        this.enemyShootRate = 3000;
+        this.playerHealth = 5;
+        this.maxEnemies = 10;
+        this.enemyMoveRate = 250;
+        this.bulletMoveRate = 30;
+        this.enemiesKilled = 0;
+        this.stars = [];
+
+        // Timers
+        this.enemyTimer = Date.now();
+        this.enemyShootTimer = Date.now();
+        this.enemyMoveTimer = Date.now();
+        this.enemySpawnDelayTimer = Date.now();
+        this.enemyRespawnDelay = 3000;
+        this.bulletMoveTimer = Date.now();
+
+        // Smooth movement variables
+        this.playerMoveTarget = this.playerX;
+        this.playerMoveRate = 15;
+        this.playerMoveTimer = Date.now();
+
+        // Key press state
+        this.keysPressed = {};
+
+        // Initialize stars
+        for (let i = 0; i < 50; i++) { // Create 50 stars
+            this.stars.push({
+                x: Math.floor(Math.random() * this.width),
+                y: Math.floor(Math.random() * this.height),
+                speed: Math.random() * 0.5 + 0.1  // Varying speeds
+            });
+        }
+    }
+
+    spawnEnemy() {
+        const now = Date.now();
+        if (this.enemies.length < this.maxEnemies && now - this.enemySpawnDelayTimer > this.enemyRespawnDelay) {
+            if (now - this.enemyTimer > this.enemySpawnRate) {
+                let x = this.vanishingPointX + Math.floor(Math.random() * 11) - 5;
+                const enemyIcons = [">:8:", ">+<", "!T!"];
+                let randomIcon = enemyIcons[Math.floor(Math.random() * enemyIcons.length)];
+                this.enemies.push({ x: x, y: this.vanishingPointY, size: randomIcon.length - 1, icon: randomIcon, hit: false, hitTimer: 0 });
+                this.enemyTimer = now;
+                this.enemySpawnDelayTimer = now;
+            }
+        }
+    }
+
+    handleKeyDown(event) {
+        this.keysPressed[event.key] = true;
+    }
+
+    handleKeyUp(event) {
+        this.keysPressed[event.key] = false;
+    }
+
+    movePlayer() {
+        if (this.keysPressed["ArrowLeft"]) {
+            this.playerMoveTarget = Math.max(0, this.playerX - 1);
+        } else if (this.keysPressed["ArrowRight"]) {
+            this.playerMoveTarget = Math.min(this.width - 1, this.playerX + 1);
+        }
+    }
+
+    smoothPlayerMovement() {
+        const now = Date.now();
+        if (now - this.playerMoveTimer > this.playerMoveRate) {
+            if (this.playerX < this.playerMoveTarget) {
+                this.playerX++;
+            } else if (this.playerX > this.playerMoveTarget) {
+                this.playerX--;
+            }
+            this.playerMoveTimer = now;
+        }
+    }
+
+    shoot() {
+        this.bullets.push({ x: this.playerX, y: this.playerY - 1, distance: 0 });
+    }
+
+    enemyShoot() {
+        if (Date.now() - this.enemyShootTimer > this.enemyShootRate) {
+            for (const enemy of this.enemies) {
+                if (enemy.x === this.playerX) {
+                    this.enemyBullets.push({ x: enemy.x, y: enemy.y + enemy.size + 1, distance: 10 });
+                    this.enemyShootTimer = Date.now();
+                }
+            }
+        }
+    }
+
+    moveEnemies() {
+        const now = Date.now();
+        if (now - this.enemyMoveTimer > this.enemyMoveRate) {
+            for (let i = 0; i < this.enemies.length; i++) {
+                const enemy = this.enemies[i];
+                if (enemy.y < this.playerY - 1) {
+                    enemy.y++;
+                    enemy.size = Math.floor((enemy.y - this.vanishingPointY) / 3);
+                } else {
+                    // Enemy has reached the bottom, remove it and decrease player health
+                    this.enemies.splice(i, 1);
+                    this.playerHealth -= 2;
+                    if (this.playerHealth <= 0) {
+                        this.gameOver = true;
+                    }
+                }
+            }
+            this.enemyMoveTimer = now;
+        }
+    }
+
+    moveBullets() {
+        const now = Date.now();
+        if (now - this.bulletMoveTimer > this.bulletMoveRate) {
+            // Move player bullets up
+            this.bullets.forEach(bullet => bullet.y--);
+
+            // Move enemy bullets down
+            this.enemyBullets.forEach(bullet => bullet.y++);
+
+            // Reset bullet move timer
+            this.bulletMoveTimer = now;
+        }
+
+        // Remove bullets that are out of bounds
+        this.bullets = this.bullets.filter(bullet => bullet.y >= 0 && bullet.y < this.height);
+        this.enemyBullets = this.enemyBullets.filter(bullet => bullet.y >= 0 && bullet.y < this.height);
+    }
+
+    updateBullets() {
+        this.bullets = this.bullets.filter(bullet => {
+            if (bullet.y <= this.vanishingPointY) return false;
+
+            for (let i = 0; i < this.enemies.length; i++) {
+                const enemy = this.enemies[i];
+                if (bullet.x >= enemy.x && bullet.x <= enemy.x + enemy.size && bullet.y === enemy.y) {
+                    // Enemy hit
+                    enemy.hit = true;
+                    enemy.hitTimer = Date.now();
+                    this.enemiesKilled++;
+                    this.score++;
+
+                    // Increase enemy count every 10 kills
+                    if (this.enemiesKilled % 10 === 0) {
+                        this.playerHealth = Math.min(this.playerHealth + 2, 5); // Heal 2, up to max 5
+                        this.maxEnemies += 2; // Increase max enemies by 5
+                    }
+
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    updateEnemyBullets() {
+        this.enemyBullets = this.enemyBullets.filter(bullet => {
+            if (bullet.y === this.playerY && bullet.x === this.playerX) {
+                this.playerHealth--;
+                if (this.playerHealth <= 0) this.gameOver = true;
+                return false;
+            }
+            return true;
+        });
+    }
+
+    moveStars() {
+        this.stars.forEach(star => {
+            star.y += star.speed;
+            if (star.y >= this.height) {
+                // Reset star to top with random position
+                star.x = Math.floor(Math.random() * this.width);
+                star.y = 0;
+                star.speed = Math.random() * 0.5 + 0.1;
+            }
+        });
+    }
+
+    toggleAimAssist() {
+        this.aimAssist = !this.aimAssist;
+        console.log(`Aim Assist: ${this.aimAssist ? 'On' : 'Off'}`);
+    }
+
+    draw() {
+        const gameCanvas = document.getElementById("gameCanvas");
+        let display = Array.from({ length: this.height }, () => Array(this.width).fill(" "));
+    
+        // Draw stars
+        this.stars.forEach(star => {
+            if (star.y >= 0 && star.y < this.height) {
+                display[Math.floor(star.y)][star.x] = "<span style='color: white;'>.</span>";
+            }
+        });
+    
+        // Draw vanishing point
+        display[this.vanishingPointY][this.vanishingPointX] = ".";
+    
+        // Draw enemies
+        const now = Date.now();
+        this.enemies.forEach(enemy => {
+            let enemySymbol = enemy.icon;
+            if (enemy.hit) {
+                // Make enemy red for a short duration
+                if (now - enemy.hitTimer < 500) {
+                    enemySymbol = "<span style='color: red;'>" + enemySymbol + "</span>";
+                } else {
+                    // Remove the enemy after the hit duration
+                    this.enemies.splice(this.enemies.indexOf(enemy), 1);
+                    return; // Skip drawing this enemy
+                }
+            }
+            
+            const startX = enemy.x - Math.floor(enemySymbol.length / 2);
+            for (let i = 0; i < enemySymbol.length; i++) {
+                if (startX + i >= 0 && startX + i < this.width && enemy.y < this.height) {
+                    display[enemy.y][startX + i] = enemySymbol[i];
+                }
+            }
+        });
+    
+        // Draw player bullets (yellow color)
+        this.bullets.forEach(bullet => {
+            if (bullet.y >= 0 && bullet.y < this.height && bullet.x >= 0 && bullet.x < this.width) {
+                display[bullet.y][bullet.x] = "<span style='color: yellow;'>|</span>";
+            }
+        });
+    
+        // Draw enemy bullets
+        this.enemyBullets.forEach(bullet => {
+            if (bullet.y >= 0 && bullet.y < this.height && bullet.x >= 0 && bullet.x < this.width) {
+                display[bullet.y][bullet.x] = "!";
+            }
+        });
+    
+        // Draw player
+        const playerSymbol = "[TT]";
+        const playerStartX = this.playerX - Math.floor(playerSymbol.length / 2);
+        for (let i = 0; i < playerSymbol.length; i++) {
+            if (playerStartX + i >= 0 && playerStartX + i < this.width) {
+                display[this.playerY][playerStartX + i] = playerSymbol[i];
+            }
+        }
+    
+        // Display game info
+        gameCanvas.innerHTML = display.map(row => row.join("")).join("\n") +
+            `\nScore: ${this.score}\n` +
+            `Health: ${this.playerHealth}`;
+    }
+
+    run() {
+        document.addEventListener("keydown", this.handleKeyDown.bind(this));
+        document.addEventListener("keyup", this.handleKeyUp.bind(this));
+
+        document.addEventListener("keydown", (event) => {
+             if (event.key === " ") {
+                this.shoot();
+            } else if (event.key === "a") {
+                this.toggleAimAssist();
+            }
+        });
+
+        const gameLoop = () => {
+            if (!this.gameOver) {
+                this.spawnEnemy();
+                this.enemyShoot();
+                this.moveEnemies();
+                this.moveBullets();
+                this.updateBullets();
+                this.updateEnemyBullets();
+                this.movePlayer();
+                this.smoothPlayerMovement();
+                this.moveStars();
+                this.draw();
+                setTimeout(gameLoop, 20); // More frequent game loop
+            } else {
+                console.log("Game Over!");
+                alert("Game Over! Press 'OK' to restart the game");
+                location.reload();
+            }
+        };
+
+        gameLoop();
+    }
+}
+
+const game = new Game();
+game.run();
+</script>
+
+</body>
+</html>

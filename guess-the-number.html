@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guess the Number</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF6600;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Guess the Number</h1>
+
+    <p>I'm thinking of a number between 1 and 100.</p>
+    <input type="number" id="guessInput" placeholder="Enter your guess">
+    <button onclick="checkGuess()">Guess</button>
+
+    <p id="message"></p>
+
+    <button onclick="resetGame()">New Game</button>
+    <a href="index.html">Back to Main Page</a>
+
+    <script src="guess-the-number.js"></script>
+</body>
+</html>

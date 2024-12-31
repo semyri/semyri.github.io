@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hangman</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF6600;
+        }
+
+        #hangmanContainer {
+            margin: 20px auto;
+            width: 300px; /* Adjust as needed */
+            position: relative; /* For positioning the hangman figure */
+        }
+
+        #hangmanFigure line,
+        #hangmanFigure circle {
+            stroke: black;
+            stroke-width: 4px;
+        }
+
+        #hangmanContainer input {
+            width: 30px;
+        }
+
+        /* The base of the hangman */
+        #hangmanBase {
+            width: 150px;
+            height: 10px;
+            background-color: black;
+            margin: 0 auto;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Button Styles */
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a[href="index.html"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        a[href="index.html"]:hover {
+            background-color: #00CC00;
+        }
+
+        #guessedLetters {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <h1>Hangman</h1>
+
+    <div id="hangmanContainer">
+        <svg id="hangmanFigure" width="300" height="250">
+            <!-- Head -->
+            <circle cx="150" cy="60" r="20" stroke="black" stroke-width="4" fill="transparent" />
+            <!-- Body -->
+            <line x1="150" y1="80" x2="150" y2="140" />
+            <!-- Left Arm -->
+            <line x1="150" y1="90" x2="120" y2="120" />
+            <!-- Right Arm -->
+            <line x1="150" y1="90" x2="180" y2="120" />
+            <!-- Left Leg -->
+            <line x1="150" y1="140" x2="120" y2="180" />
+            <!-- Right Leg -->
+            <line x1="150" y1="140" x2="180" y2="180" />
+            <!-- Rope -->
+            <line x1="150" y1="40" x2="150" y2="15" />
+            <line x1="75" y1="15" x2="150" y2="15" />
+            <line x1="75" y1="15" x2="75" y2="235" />
+        </svg>
+        <div id="hangmanBase"></div>
+    </div>
+
+    <p id="word"></p>
+    <p id="incorrectGuesses"></p>
+    <p id="message"></p>
+    <p id="guessedLetters"></p> <input type="text" id="guessInput" maxlength="1" placeholder="Enter a letter">
+    <button onclick="guessLetter()">Guess</button>
+    <button onclick="resetGame()">New Game</button>
+    <a href="index.html">Back to Main Page</a>
+
+    <script src="hangman.js"></script>
+</body>
+</html>

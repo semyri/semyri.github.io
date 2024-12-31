@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shooting Game</title>
+    <style>
+        body {
+            background-color: #FFFF99;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        #gameCanvas {
+            background-color: #000;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #score {
+            color: #FF6600;
+            font-size: 20px;
+        }
+
+        /* High Score Display */
+        #highScore {
+            color: #FF6600;
+            font-size: 20px;
+            margin-top: 10px; /* Add some spacing */
+        }
+
+        /* Button Styles */
+        button {
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        button:hover {
+            background-color: #00CC00;
+        }
+
+        /* Styling for the "Back to Main Page" link */
+        a {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #00AA00;
+            color: white;
+            text-decoration: none;
+            border: 2px solid #006600;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        a:hover {
+            background-color: #00CC00;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Shooting Game</h1>
+
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <p id="score">Score: 0</p>
+    <p id="highScore">High Score: 0</p>
+
+    <button id="newGameButton">New Game</button>
+    <a href="index.html" id="backToMainButton">Back to Main Page</a>
+
+    <script src="shooting-game.js"></script>
+</body>
+</html>
