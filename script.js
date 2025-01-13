@@ -139,7 +139,17 @@ auth.onAuthStateChanged((user) => {
 const myCurrentStatus = document.getElementById('my-current-status');
 
 function setupMyStatusListeners(userId) {
+  const locationInput = document.getElementById('location-input');
   const locationOkBtn = document.getElementById('location-ok-btn');
+
+  // Fetch and set the last used location
+  database.ref(`statuses/${userId}`).once('value', snapshot => {
+    const userData = snapshot.val();
+    if (userData && userData.location) {
+      locationInput.value = userData.location;
+    }
+  });
+
   locationOkBtn.addEventListener('click', (e) => {
     const location = locationInput.value;
     updateMyStatus(undefined, location); // Pass undefined for status to only update location
@@ -187,7 +197,7 @@ function updateMyStatus(status, location) {
     updates.lastUpdated = firebase.database.ServerValue.TIMESTAMP;
 
     database.ref(`statuses/${currentUserId}`).update(updates).then(() => {
-      locationInput.value = ''; // Clear the location input after update
+      // Keep the location input value, no need to clear it here
     });
   }
 }
