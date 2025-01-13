@@ -192,7 +192,7 @@ function setupStatusListeners() {
             const date = new Date(userData.lastUpdated);
             const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
             const formattedDate = date.toLocaleDateString();
-            timestampSpan.textContent = ` (Updated: ${formattedTime} on ${formattedDate})`;
+            timestampSpan.textContent = ` (Updated: ${date.toString()})`;
             timestampSpan.classList.add('timestamp');
             listItem.appendChild(timestampSpan);
           }
