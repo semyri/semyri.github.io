@@ -163,6 +163,13 @@ h1, h2 {
   align-self: flex-start; /* Align timestamp to the left */
 }
 
+/* Error Message Styling */
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
 /* Media Query for Smaller Screens (Phones) */
 @media (max-width: 768px) {
   .container {
@@ -217,5 +224,59 @@ h1, h2 {
 
   .member > span:last-child {
     margin-left: 0; /* Align location to the left */
+    overflow: hidden; /* Add for text overflow */
+    text-overflow: ellipsis; /* Add for text overflow */
+    white-space: nowrap; /* Add for text overflow */
+  }
+}
+
+.member-info-row {
+  display: flex;
+  justify-content: space-between; /* Distribute space evenly */
+  align-items: center; /* Vertically align items in the row */
+  margin-bottom: 5px; /* Add a little space between the info row and timestamp */
+}
+
+.member-info-row span {
+  margin-right: 10px; /* Add spacing between items in the info row */
+}
+
+.member-name {
+  flex-grow: 1; /* Allow the name to take up available space */
+  font-weight: bold;
+}
+
+.member-status {
+  /* Add specific styling for the status if needed */
+}
+
+.member-location {
+  font-style: italic;
+  color: #777;
+}
+
+.timestamp-row {
+  font-size: 0.8em;
+  color: #888;
+  text-align: right; /* Align the timestamp to the right */
+  padding-right: 10px; /* Add some padding on the right */
+}
+
+/* Media Query Adjustments (if needed) */
+@media (max-width: 768px) {
+  .member-info-row {
+    flex-direction: column; /* Stack items on smaller screens */
+    align-items: flex-start; /* Align items to the start when stacked */
+  }
+
+  .member-info-row span {
+    margin-bottom: 3px; /* Add spacing when stacked */
+    margin-right: 0;
+    display: block; /* Make each span take full width when stacked */
+  }
+
+  .timestamp-row {
+    text-align: left; /* Align timestamp to the left on smaller screens */
+    padding-right: 0;
   }
 }

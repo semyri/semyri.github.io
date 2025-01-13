@@ -29,6 +29,8 @@ const registerNameInput = document.getElementById('register-name');
 const locationInput = document.getElementById('location-input');
 const inBtn = document.getElementById('in-btn');
 const outBtn = document.getElementById('out-btn');
+const loginError = document.getElementById('login-error');
+const registerError = document.getElementById('register-error');
 
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
@@ -37,19 +39,36 @@ registerBtn.addEventListener('click', (e) => {
   const email = registerEmailInput.value;
   const password = registerPasswordInput.value;
 
+  registerError.textContent = ''; // Clear previous error
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       console.log("Registration successful:", userCredential.user);
-      // Store the name in the database, linked to the user's UID
       return database.ref('users/' + userCredential.user.uid).set({
         name: name
       });
     })
     .then(() => {
       console.log("User name saved to database.");
+      registerNameInput.value = '';
+      registerEmailInput.value = '';
+      registerPasswordInput.value = '';
+      // Optionally, provide a success message
     })
     .catch((error) => {
       console.error("Registration error:", error);
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          registerError.textContent = "An account with this email already exists.";
+          break;
+        case 'auth/invalid-email':
+          registerError.textContent = "Please enter a valid email address.";
+          break;
+        case 'auth/weak-password':
+          registerError.textContent = "Password should be at least 6 characters.";
+          break;
+        default:
+          registerError.textContent = "Registration failed. Please try again.";
+      }
     });
 });
 
@@ -59,12 +78,26 @@ loginBtn.addEventListener('click', (e) => {
   const email = loginEmailInput.value;
   const password = loginPasswordInput.value;
 
+  loginError.textContent = ''; // Clear previous error
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       console.log("Login successful:", userCredential.user);
     })
     .catch((error) => {
       console.error("Login error:", error);
+      switch (error.code) {
+        case 'auth/user-not-found':
+          loginError.textContent = "No user found with that email.";
+          break;
+        case 'auth/wrong-password':
+          loginError.textContent = "Incorrect password.";
+          break;
+        case 'auth/invalid-email':
+          loginError.textContent = "Please enter a valid email address.";
+          break;
+        default:
+          loginError.textContent = "Login failed. Please check your email and password.";
+      }
     });
 });
 
@@ -109,10 +142,7 @@ function setupMyStatusListeners(userId) {
   const locationOkBtn = document.getElementById('location-ok-btn');
   locationOkBtn.addEventListener('click', (e) => {
     const location = locationInput.value;
-    database.ref(`statuses/${userId}`).once('value', (snapshot) => {
-      const currentStatus = snapshot.val()?.status || false;
-      updateMyStatus(currentStatus, location);
-    });
+    updateMyStatus(undefined, location); // Pass undefined for status to only update location
   });
 
   inBtn.addEventListener('click', () => {
@@ -134,11 +164,8 @@ function setupMyStatusListeners(userId) {
       }
       if (userData.lastUpdated) {
         const date = new Date(userData.lastUpdated);
-
-        // Formatting for iOS compatibility (and to show only time and date)
-        const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); // e.g., 10:30 AM
-        const formattedDate = date.toLocaleDateString('en-US'); // e.g., 11/2/2023
-
+        const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        const formattedDate = date.toLocaleDateString('en-US');
         statusText += ` <span class="timestamp">(Updated: ${formattedTime} on ${formattedDate})</span>`;
       }
     } else {
@@ -150,67 +177,78 @@ function setupMyStatusListeners(userId) {
 
 function updateMyStatus(status, location) {
   if (currentUserId) {
-    database.ref(`statuses/${currentUserId}`).update({
-      status: status,
-      location: location,
-      lastUpdated: firebase.database.ServerValue.TIMESTAMP // Add the timestamp
+    const updates = {};
+    if (status !== undefined) {
+      updates.status = status;
+    }
+    if (location !== undefined) {
+      updates.location = location;
+    }
+    updates.lastUpdated = firebase.database.ServerValue.TIMESTAMP;
+
+    database.ref(`statuses/${currentUserId}`).update(updates).then(() => {
+      locationInput.value = ''; // Clear the location input after update
     });
   }
 }
 
 function setupStatusListeners() {
   console.log("setupStatusListeners called");
-  database.ref('statuses').on('value', (snapshot) => {
-    const statuses = snapshot.val();
-    console.log("Fetched Statuses:", statuses);
+  database.ref('statuses').on('child_changed', (snapshot) => {
+    const userId = snapshot.key;
+    const userData = snapshot.val();
+    console.log(`Status changed for user ${userId}:`, userData);
 
-    teamMembersList.innerHTML = '';
-
-    if (statuses) {
-      for (const userId in statuses) {
-        const userData = statuses[userId];
-
-        database.ref('users/' + userId).once('value', (userSnapshot) => {
-          const userName = userSnapshot.val()?.name || 'Unknown User';
-
-          const listItem = document.createElement('li');
-          listItem.classList.add('member');
-
-          const userSpan = document.createElement('span');
-          userSpan.textContent = `${userName}: `;
-          listItem.appendChild(userSpan);
-
-          const statusSpan = document.createElement('span');
-          statusSpan.textContent = userData.status === true ? 'In' : 'Out';
-          statusSpan.classList.add(userData.status === true ? 'status-in' : 'status-out');
-          listItem.appendChild(statusSpan);
-
-          // Display the timestamp
-          if (userData.lastUpdated) {
-            const timestampSpan = document.createElement('span');
-            const date = new Date(userData.lastUpdated);
-
-            // Formatting for iOS compatibility (and to show only time and date)
-            const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); // e.g., 10:30 AM
-            const formattedDate = date.toLocaleDateString('en-US'); // e.g., 11/2/2023
-
-            timestampSpan.textContent = `Updated: ${formattedTime} on ${formattedDate}`;
-            timestampSpan.classList.add('timestamp');
-            listItem.appendChild(timestampSpan);
-          }
-
-          // Add the location span at the end
-          if (userData.location) {
-            const locationSpan = document.createElement('span');
-            locationSpan.textContent = `${userData.location}`;
-            listItem.appendChild(locationSpan); // Append location last
-          }
-
-          teamMembersList.appendChild(listItem);
-        });
-      }
-    } else {
-      teamMembersList.textContent = 'No statuses yet.';
+    const listItem = document.querySelector(`#member-${userId}`);
+    if (listItem) {
+      updateMemberListItem(listItem, userData);
     }
   });
+
+  database.ref('statuses').on('child_added', (snapshot) => {
+    const userId = snapshot.key;
+    const userData = snapshot.val();
+    console.log(`New status added for user ${userId}:`, userData);
+    fetchAndDisplayMember(userId, userData);
+  });
+
+  database.ref('statuses').on('child_removed', (snapshot) => {
+    const userId = snapshot.key;
+    const listItem = document.querySelector(`#member-${userId}`);
+    if (listItem) {
+      listItem.remove();
+    }
+  });
+}
+
+function fetchAndDisplayMember(userId, userData) {
+  database.ref('users/' + userId).once('value', (userSnapshot) => {
+    const userName = userSnapshot.val()?.name || 'Unknown User';
+
+    const listItem = document.createElement('li');
+    listItem.classList.add('member');
+    listItem.id = `member-${userId}`;
+
+    updateMemberListItem(listItem, userData, userName);
+
+    teamMembersList.appendChild(listItem);
+  });
+}
+
+function updateMemberListItem(listItem, userData, userName) {
+    const name = userName || listItem.querySelector('.member-name').textContent.replace(':', ''); // Use existing name if not provided
+    listItem.innerHTML = `
+      <div class="member-info-row">
+        <span class="member-name">${name}</span>
+        <span class="member-status ${userData.status === true ? 'status-in' : 'status-out'}">
+          ${userData.status === true ? 'In' : 'Out'}
+        </span>
+        ${userData.location ? `<span class="member-location">${userData.location}</span>` : ''}
+      </div>
+      ${userData.lastUpdated ? `
+        <div class="timestamp-row">
+          <span class="timestamp">Updated: ${new Date(userData.lastUpdated).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${new Date(userData.lastUpdated).toLocaleDateString('en-US')}</span>
+        </div>
+      ` : ''}
+    `;
 }
