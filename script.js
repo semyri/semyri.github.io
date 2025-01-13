@@ -24,7 +24,7 @@ const loginEmailInput = document.getElementById('login-email');
 const loginPasswordInput = document.getElementById('login-password');
 const registerEmailInput = document.getElementById('register-email');
 const registerPasswordInput = document.getElementById('register-password');
-const registerNameInput = document.getElementById('register-name'); // New input
+const registerNameInput = document.getElementById('register-name');
 
 const locationInput = document.getElementById('location-input');
 const inBtn = document.getElementById('in-btn');
@@ -33,7 +33,7 @@ const outBtn = document.getElementById('out-btn');
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
   e.preventDefault();
-  const name = registerNameInput.value; // Get the name
+  const name = registerNameInput.value;
   const email = registerEmailInput.value;
   const password = registerPasswordInput.value;
 
@@ -103,7 +103,8 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-  const myCurrentStatus = document.getElementById('my-current-status');
+const myCurrentStatus = document.getElementById('my-current-status');
+
 function setupMyStatusListeners(userId) {
   const locationOkBtn = document.getElementById('location-ok-btn');
   locationOkBtn.addEventListener('click', (e) => {
@@ -125,21 +126,25 @@ function setupMyStatusListeners(userId) {
   // Listen for changes to the user's own status in real-time
   database.ref(`statuses/${userId}`).on('value', (snapshot) => {
     const userData = snapshot.val();
+    let statusText = ''; // Start with an empty string
     if (userData) {
-      let statusText = `My Status: <span class="${userData.status === true ? 'status-in' : 'status-out'}">${userData.status === true ? 'In' : 'Out'}</span>`;
+      statusText += `<span class="${userData.status === true ? 'status-in' : 'status-out'}">${userData.status === true ? 'In' : 'Out'}</span>`;
       if (userData.location) {
         statusText += ` - ${userData.location}`;
       }
       if (userData.lastUpdated) {
         const date = new Date(userData.lastUpdated);
-        const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        const formattedDate = date.toLocaleDateString();
+
+        // Formatting for iOS compatibility (and to show only time and date)
+        const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); // e.g., 10:30 AM
+        const formattedDate = date.toLocaleDateString('en-US'); // e.g., 11/2/2023
+
         statusText += ` <span class="timestamp">(Updated: ${formattedTime} on ${formattedDate})</span>`;
       }
-      myCurrentStatus.innerHTML = statusText;
     } else {
-      myCurrentStatus.innerHTML = `My Status: Out - No Location Set`;
+      statusText = `Out - No Location Set`;
     }
+    myCurrentStatus.innerHTML = statusText;
   });
 }
 
@@ -180,21 +185,25 @@ function setupStatusListeners() {
           statusSpan.classList.add(userData.status === true ? 'status-in' : 'status-out');
           listItem.appendChild(statusSpan);
 
-          if (userData.location) {
-            const locationSpan = document.createElement('span');
-            locationSpan.textContent = ` - ${userData.location}`;
-            listItem.appendChild(locationSpan);
-          }
-
           // Display the timestamp
           if (userData.lastUpdated) {
             const timestampSpan = document.createElement('span');
             const date = new Date(userData.lastUpdated);
-            const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-            const formattedDate = date.toLocaleDateString();
-            timestampSpan.textContent = ` (Updated: ${date.toString()})`;
+
+            // Formatting for iOS compatibility (and to show only time and date)
+            const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); // e.g., 10:30 AM
+            const formattedDate = date.toLocaleDateString('en-US'); // e.g., 11/2/2023
+
+            timestampSpan.textContent = `Updated: ${formattedTime} on ${formattedDate}`;
             timestampSpan.classList.add('timestamp');
             listItem.appendChild(timestampSpan);
+          }
+
+          // Add the location span at the end
+          if (userData.location) {
+            const locationSpan = document.createElement('span');
+            locationSpan.textContent = `${userData.location}`;
+            listItem.appendChild(locationSpan); // Append location last
           }
 
           teamMembersList.appendChild(listItem);

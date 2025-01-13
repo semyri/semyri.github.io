@@ -2,8 +2,8 @@
 body {
   font-family: sans-serif;
   margin: 0;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: #f4f4f4; /* Light gray background */
+  color: #333; /* Dark gray text */
   line-height: 1.6; /* Improved line spacing for readability */
 }
 
@@ -126,31 +126,26 @@ h1, h2 {
   border-radius: 6px;
   background-color: #fff;
   display: flex;
-  flex-wrap: wrap; /* Allow content to wrap on smaller screens */
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* Stack elements vertically */
+  position: relative; /* Make the member item a positioning context */
+  align-items: flex-start; /* Align items to the start */
   font-size: 1em;
+}
+
+.member > span {
+  text-align: left; /* Align all text within spans to the left */
+  margin-right: 0;
 }
 
 .member > span:first-child {
   flex-basis: 100%; /* Full width for username on small screens */
-  text-align: left;
   margin-bottom: 5px; /* Add space below username */
 }
 
 .member > span:nth-child(2) {
-  text-align: right;
   min-width: 60px;
   display: inline-block;
-  margin-left: auto;
-  margin-right: 0; /* Removed right margin */
-}
-
-.member > span:last-child {
-  flex-basis: 100%; /* Full width for location on small screens */
-  text-align: right;
-  font-size: 0.9em;
-  color: #777;
+  margin-left: 0;
 }
 
 .status-in {
@@ -161,6 +156,13 @@ h1, h2 {
 .status-out {
   color: red;
   font-weight: bold;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 10px; /* Add some space above the timestamp */
+  align-self: flex-start; /* Align timestamp to the left */
 }
 
 /* Media Query for Smaller Screens (Phones) */
@@ -209,22 +211,14 @@ h1, h2 {
   .member {
     flex-direction: column; /* Stack elements in member list */
     align-items: flex-start; /* Align items to the start */
-    text-align: left;
   }
 
   .member > span:nth-child(2) {
-    text-align: left; /* Revert status alignment */
     margin-left: 0;
     margin-bottom: 5px;
   }
 
   .member > span:last-child {
-    text-align: left; /* Revert location alignment */
+    margin-left: 0; /* Align location to the left */
   }
-}
-
-.timestamp {
-  font-size: 0.8em;
-  color: #888;
-  margin-left: 5px;
 }
