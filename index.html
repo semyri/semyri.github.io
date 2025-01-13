@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team In/Out Board</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Team In/Out Board</h1>
+
+    <div id="auth-container" class="card">
+      <h2>Login</h2>
+      <div class="form-group">
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email">
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password">
+      </div>
+      <button id="login-btn" class="button primary">Login</button>
+
+      <h2>Register</h2>
+      <div class="form-group">
+        <label for="register-name">Name:</label>
+        <input type="text" id="register-name">
+      </div>
+      <div class="form-group">
+        <label for="register-email">Email:</label>
+        <input type="email" id="register-email">
+      </div>
+      <div class="form-group">
+        <label for="register-password">Password:</label>
+        <input type="password" id="register-password">
+      </div>
+      <button id="register-btn" class="button secondary">Register</button>
+    </div>
+
+    <div id="team-board" class="card" style="display: none;">
+      <h2>My Status</h2>
+      <div id="my-current-status" class="status-display"></div>
+      <div class="form-group status-buttons">
+        <button id="in-btn" class="button in-button">In</button>
+        <button id="out-btn" class="button out-button">Out</button>
+      </div>
+      <div class="form-group location-group">
+        <label for="location-input">Location:</label>
+        <input type="text" id="location-input" placeholder="Where are you?">
+        <button id="location-ok-btn" class="button">OK</button>
+      </div>
+      <h2>Team Members</h2>
+      <ul id="team-members-list">
+        <!-- Team member statuses will be displayed here -->
+      </ul>
+      <button id="logout-btn" class="button">Logout</button>
+    </div>
+  </div>
+
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
