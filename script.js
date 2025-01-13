@@ -108,9 +108,8 @@ function setupMyStatusListeners(userId) {
   const locationOkBtn = document.getElementById('location-ok-btn');
   locationOkBtn.addEventListener('click', (e) => {
     const location = locationInput.value;
-    // We'll fetch the current status and update with the new location
     database.ref(`statuses/${userId}`).once('value', (snapshot) => {
-      const currentStatus = snapshot.val()?.status || false; // Default to Out if no status
+      const currentStatus = snapshot.val()?.status || false;
       updateMyStatus(currentStatus, location);
     });
   });
@@ -123,11 +122,21 @@ function setupMyStatusListeners(userId) {
     updateMyStatus(false, locationInput.value);
   });
 
-  // **Listen for changes to the user's own status in real-time**
+  // Listen for changes to the user's own status in real-time
   database.ref(`statuses/${userId}`).on('value', (snapshot) => {
     const userData = snapshot.val();
     if (userData) {
-      myCurrentStatus.innerHTML = `My Status: <span class="${userData.status === true ? 'status-in' : 'status-out'}">${userData.status === true ? 'In' : 'Out'}</span> - ${userData.location || 'No Location Set'}`
+      let statusText = `My Status: <span class="${userData.status === true ? 'status-in' : 'status-out'}">${userData.status === true ? 'In' : 'Out'}</span>`;
+      if (userData.location) {
+        statusText += ` - ${userData.location}`;
+      }
+      if (userData.lastUpdated) {
+        const date = new Date(userData.lastUpdated);
+        const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const formattedDate = date.toLocaleDateString();
+        statusText += ` <span class="timestamp">(Updated: ${formattedTime} on ${formattedDate})</span>`;
+      }
+      myCurrentStatus.innerHTML = statusText;
     } else {
       myCurrentStatus.innerHTML = `My Status: Out - No Location Set`;
     }
@@ -138,7 +147,8 @@ function updateMyStatus(status, location) {
   if (currentUserId) {
     database.ref(`statuses/${currentUserId}`).update({
       status: status,
-      location: location
+      location: location,
+      lastUpdated: firebase.database.ServerValue.TIMESTAMP // Add the timestamp
     });
   }
 }
@@ -147,27 +157,22 @@ function setupStatusListeners() {
   console.log("setupStatusListeners called");
   database.ref('statuses').on('value', (snapshot) => {
     const statuses = snapshot.val();
-    console.log("Fetched Statuses:", statuses); // CHECKPOINT 1
+    console.log("Fetched Statuses:", statuses);
 
     teamMembersList.innerHTML = '';
-    console.log("teamMembersList cleared"); // CHECKPOINT 2
 
     if (statuses) {
-      console.log("Statuses object is not null, proceeding with loop."); // CHECKPOINT 3
       for (const userId in statuses) {
-        console.log("Processing userId:", userId); // CHECKPOINT 4
         const userData = statuses[userId];
-        console.log("User Data for", userId + ":", userData); // CHECKPOINT 5
 
-        // Fetch the user's name from the 'users' node
         database.ref('users/' + userId).once('value', (userSnapshot) => {
-          const userName = userSnapshot.val()?.name || 'Unknown User'; // Get the name or default
+          const userName = userSnapshot.val()?.name || 'Unknown User';
 
           const listItem = document.createElement('li');
           listItem.classList.add('member');
 
           const userSpan = document.createElement('span');
-          userSpan.textContent = `${userName}: `; // Display the name
+          userSpan.textContent = `${userName}: `;
           listItem.appendChild(userSpan);
 
           const statusSpan = document.createElement('span');
@@ -181,12 +186,21 @@ function setupStatusListeners() {
             listItem.appendChild(locationSpan);
           }
 
+          // Display the timestamp
+          if (userData.lastUpdated) {
+            const timestampSpan = document.createElement('span');
+            const date = new Date(userData.lastUpdated);
+            const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const formattedDate = date.toLocaleDateString();
+            timestampSpan.textContent = ` (Updated: ${formattedTime} on ${formattedDate})`;
+            timestampSpan.classList.add('timestamp');
+            listItem.appendChild(timestampSpan);
+          }
+
           teamMembersList.appendChild(listItem);
-          console.log("Appended listItem:", listItem); // CHECKPOINT 6
         });
       }
     } else {
-      console.log("Statuses object is null or undefined."); // CHECKPOINT 7
       teamMembersList.textContent = 'No statuses yet.';
     }
   });
