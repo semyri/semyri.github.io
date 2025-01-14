@@ -43,18 +43,20 @@ registerBtn.addEventListener('click', (e) => {
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       console.log("Registration successful:", userCredential.user);
-      return database.ref('statuses/' + userCredential.user.uid).set({
+
+      // **ADD THIS SECTION TO SAVE USER PROFILE DATA**
+      return database.ref('users/' + userCredential.user.uid).set({
         name: name,
-        location: '',
-        lastUpdated: firebase.database.ServerValue.TIMESTAMP
-      });
+        email: email // You might want to save the email too
+        // Add other profile information here if needed
+      }).then(() => userCredential.user.sendEmailVerification()); // Chain the email verification
     })
     .then(() => {
-      console.log("User data saved to database.");
+      console.log("User data saved and verification email sent.");
+      registerError.textContent = "Registration successful. Please check your email to verify your account.";
       registerNameInput.value = '';
       registerEmailInput.value = '';
       registerPasswordInput.value = '';
-      // Optionally, provide a success message
     })
     .catch((error) => {
       console.error("Registration error:", error);
@@ -83,7 +85,27 @@ loginBtn.addEventListener('click', (e) => {
   loginError.textContent = ''; // Clear previous error
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
-      console.log("Login successful:", userCredential.user);
+      const user = userCredential.user;
+      if (user.emailVerified) {
+        console.log("Login successful (email verified):", user.uid);
+        // Proceed to team board (handled by auth.onAuthStateChanged)
+      } else {
+        console.log("Login attempted with unverified email:", user.uid);
+        loginError.textContent = "Please verify your email address before logging in.";
+        const resendButton = document.createElement('button');
+        resendButton.textContent = 'Resend Verification Email';
+        resendButton.classList.add('button');
+        resendButton.addEventListener('click', () => {
+          user.sendEmailVerification()
+            .then(() => {
+              loginError.textContent = "Verification email resent. Please check your inbox.";
+            })
+            .catch((error) => {
+              loginError.textContent = `Error resending verification email: ${error.message}`;
+            });
+        });
+        loginError.parentElement.appendChild(resendButton);
+      }
     })
     .catch((error) => {
       console.error("Login error:", error);
@@ -120,12 +142,20 @@ let currentUserId = null; // Store the current user's ID
 auth.onAuthStateChanged((user) => {
   if (user) {
     // User is signed in
-    console.log("User is signed in:", user.uid);
-    currentUserId = user.uid; // Set the current user ID
-    loginForm.style.display = 'none';
-    teamBoard.style.display = 'block';
-    setupLocationUpdate(user.uid);
-    setupStatusListeners();
+    if (user.emailVerified) {
+      console.log("User is signed in and email is verified:", user.uid);
+      currentUserId = user.uid; // Set the current user ID
+      loginForm.style.display = 'none';
+      teamBoard.style.display = 'block';
+      setupLocationUpdate(user.uid);
+      setupStatusListeners();
+    } else {
+      console.log("User is signed in but email is not verified:", user.uid);
+      loginForm.style.display = 'block'; // Keep login form visible
+      teamBoard.style.display = 'none';
+      teamMembersList.innerHTML = '';
+      loginError.textContent = "Please verify your email address to access the application.";
+    }
   } else {
     // User is signed out
     console.log("User is signed out");
@@ -170,12 +200,9 @@ function setupStatusListeners() {
     const userId = snapshot.key;
     const userData = snapshot.val();
     const listItem = document.querySelector(`#member-${userId}`);
-    if (listItem) { // Add this check
+    if (listItem) {
       updateMemberListItem(listItem, userData);
     } else {
-      // Optionally, handle the case where the element doesn't exist yet.
-      // This might happen if the 'child_changed' event fires very quickly
-      // after a user is added but before the 'child_added' has fully processed.
       console.warn(`Could not find list item for user ID: ${userId} during 'child_changed'`);
     }
   });
@@ -204,7 +231,7 @@ function fetchAndDisplayMember(userId, userData) {
 }
 
 function updateMemberListItem(listItem, userData, userName) {
-    const name = userName || listItem.querySelector('.member-name').textContent.replace(':', '');
+    const name = userName || listItem.querySelector('.member-name')?.textContent.replace(':', '');
     listItem.innerHTML = `
       <div class="member-info-row">
         <span class="member-name">${name}</span>
