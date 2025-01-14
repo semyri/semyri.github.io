@@ -270,3 +270,49 @@ function updateMemberListItem(listItem, userData, userName) {
       ` : ''}
     `;
 }
+
+function focusOnInput(inputId) {
+  const inputElement = document.getElementById(inputId);
+  if (inputElement) {
+    inputElement.focus();
+  }
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.ctrlKey || event.metaKey) { // Check for Ctrl or Cmd key
+    switch (event.key.toLowerCase()) {
+      case 'l':
+        focusOnInput('login-email');
+        event.preventDefault(); // Prevent default browser behavior
+        break;
+      case 'p':
+        focusOnInput('login-password');
+        event.preventDefault();
+        break;
+      case 'n':
+        focusOnInput('register-name');
+        event.preventDefault();
+        break;
+      case 'e':
+        focusOnInput('register-email');
+        event.preventDefault();
+        break;
+      case 'r':
+        focusOnInput('register-password');
+        event.preventDefault();
+        break;
+      case 's':
+        focusOnInput('location-input');
+        event.preventDefault();
+        break;
+    }
+  }
+});
+
+locationInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    // Trigger the click event on the location OK button
+    locationOkBtn.click();
+    event.preventDefault(); // Prevent form submission or other default behavior
+  }
+});
