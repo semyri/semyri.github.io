@@ -33,6 +33,9 @@ const registerError = document.getElementById('register-error');
 const locationInput = document.getElementById('location-input');
 const locationOkBtn = document.getElementById('location-ok-btn');
 
+const shortcutsList = document.getElementById('shortcuts-list');
+const closeShortcutsBtn = document.getElementById('close-shortcuts-btn');
+
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
   e.preventDefault();
@@ -316,3 +319,23 @@ locationInput.addEventListener('keydown', (event) => {
     event.preventDefault(); // Prevent form submission or other default behavior
   }
 });
+
+if (shortcutsList && closeShortcutsBtn) {
+  document.addEventListener('keydown', (event) => {
+    // Check if the backtick key is pressed (keyCode 192 or key '`')
+    if (event.key === '`') {
+      shortcutsList.classList.toggle('hidden');
+    }
+  });
+
+  closeShortcutsBtn.addEventListener('click', () => {
+    shortcutsList.classList.add('hidden');
+  });
+
+  // Optional: Close the menu if the user clicks outside of it
+  window.addEventListener('click', (event) => {
+    if (!shortcutsList.contains(event.target) && event.target !== document.querySelector(':focus') && !shortcutsList.classList.contains('hidden')) {
+      shortcutsList.classList.add('hidden');
+    }
+  });
+}
