@@ -20,6 +20,7 @@ const logoutBtn = document.getElementById('logout-btn');
 
 const loginBtn = document.getElementById('login-btn');
 const registerBtn = document.getElementById('register-btn');
+const resetPasswordBtn = document.getElementById('reset-password-btn');
 const loginEmailInput = document.getElementById('login-email');
 const loginPasswordInput = document.getElementById('login-password');
 const registerEmailInput = document.getElementById('register-email');
@@ -43,13 +44,10 @@ registerBtn.addEventListener('click', (e) => {
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       console.log("Registration successful:", userCredential.user);
-
-      // **ADD THIS SECTION TO SAVE USER PROFILE DATA**
       return database.ref('users/' + userCredential.user.uid).set({
         name: name,
-        email: email // You might want to save the email too
-        // Add other profile information here if needed
-      }).then(() => userCredential.user.sendEmailVerification()); // Chain the email verification
+        email: email
+      }).then(() => userCredential.user.sendEmailVerification());
     })
     .then(() => {
       console.log("User data saved and verification email sent.");
@@ -123,6 +121,34 @@ loginBtn.addEventListener('click', (e) => {
           loginError.textContent = "Login failed. Please check your email and password.";
       }
     });
+});
+
+// Event listener for reset password button
+resetPasswordBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  const email = loginEmailInput.value;
+
+  if (email) {
+    auth.sendPasswordResetEmail(email)
+      .then(() => {
+        loginError.textContent = "Password reset email sent. Please check your inbox.";
+      })
+      .catch((error) => {
+        console.error("Password reset error:", error);
+        switch (error.code) {
+          case 'auth/user-not-found':
+            loginError.textContent = "No user found with that email.";
+            break;
+          case 'auth/invalid-email':
+            loginError.textContent = "Please enter a valid email address.";
+            break;
+          default:
+            loginError.textContent = "Could not send password reset email. Please try again.";
+        }
+      });
+  } else {
+    loginError.textContent = "Please enter your email address to reset your password.";
+  }
 });
 
 // Event listener for logout button
