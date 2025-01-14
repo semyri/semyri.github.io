@@ -1,4 +1,4 @@
-// Firebase configuration (replace with your actual config from Firebase Console)
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBI8rEB5JGkUpBnCpcudl73OVvjJaIQOsM",
   authDomain: "in-out-board-d68d7.firebaseapp.com",
@@ -26,11 +26,11 @@ const registerEmailInput = document.getElementById('register-email');
 const registerPasswordInput = document.getElementById('register-password');
 const registerNameInput = document.getElementById('register-name');
 
-const locationInput = document.getElementById('location-input');
-const inBtn = document.getElementById('in-btn');
-const outBtn = document.getElementById('out-btn');
 const loginError = document.getElementById('login-error');
 const registerError = document.getElementById('register-error');
+
+const locationInput = document.getElementById('location-input');
+const locationOkBtn = document.getElementById('location-ok-btn');
 
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
@@ -43,12 +43,14 @@ registerBtn.addEventListener('click', (e) => {
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       console.log("Registration successful:", userCredential.user);
-      return database.ref('users/' + userCredential.user.uid).set({
-        name: name
+      return database.ref('statuses/' + userCredential.user.uid).set({
+        name: name,
+        location: '',
+        lastUpdated: firebase.database.ServerValue.TIMESTAMP
       });
     })
     .then(() => {
-      console.log("User name saved to database.");
+      console.log("User data saved to database.");
       registerNameInput.value = '';
       registerEmailInput.value = '';
       registerPasswordInput.value = '';
@@ -122,9 +124,8 @@ auth.onAuthStateChanged((user) => {
     currentUserId = user.uid; // Set the current user ID
     loginForm.style.display = 'none';
     teamBoard.style.display = 'block';
-    myCurrentStatus.innerHTML = "Loading Status";
-    setupStatusListeners(); // Call setupStatusListeners
-    setupMyStatusListeners(user.uid); // Set up listeners for the logged-in user's status
+    setupLocationUpdate(user.uid);
+    setupStatusListeners();
   } else {
     // User is signed out
     console.log("User is signed out");
@@ -132,16 +133,10 @@ auth.onAuthStateChanged((user) => {
     loginForm.style.display = 'block';
     teamBoard.style.display = 'none';
     teamMembersList.innerHTML = '';
-    myCurrentStatus.innerHTML = '';
   }
 });
 
-const myCurrentStatus = document.getElementById('my-current-status');
-
-function setupMyStatusListeners(userId) {
-  const locationInput = document.getElementById('location-input');
-  const locationOkBtn = document.getElementById('location-ok-btn');
-
+function setupLocationUpdate(userId) {
   // Fetch and set the last used location
   database.ref(`statuses/${userId}`).once('value', snapshot => {
     const userData = snapshot.val();
@@ -150,76 +145,34 @@ function setupMyStatusListeners(userId) {
     }
   });
 
-  locationOkBtn.addEventListener('click', (e) => {
+  locationOkBtn.addEventListener('click', () => {
     const location = locationInput.value;
-    updateMyStatus(undefined, location); // Pass undefined for status to only update location
-  });
-
-  inBtn.addEventListener('click', () => {
-    updateMyStatus(true, locationInput.value);
-  });
-
-  outBtn.addEventListener('click', () => {
-    updateMyStatus(false, locationInput.value);
-  });
-
-  // Listen for changes to the user's own status in real-time
-  database.ref(`statuses/${userId}`).on('value', (snapshot) => {
-    const userData = snapshot.val();
-    let statusText = ''; // Start with an empty string
-    if (userData) {
-      statusText += `<span class="${userData.status === true ? 'status-in' : 'status-out'}">${userData.status === true ? 'In' : 'Out'}</span>`;
-      if (userData.location) {
-        statusText += ` - ${userData.location}`;
-      }
-      if (userData.lastUpdated) {
-        const date = new Date(userData.lastUpdated);
-        const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        const formattedDate = date.toLocaleDateString('en-US');
-        statusText += ` <span class="timestamp">(Updated: ${formattedTime} on ${formattedDate})</span>`;
-      }
-    } else {
-      statusText = `Out - No Location Set`;
-    }
-    myCurrentStatus.innerHTML = statusText;
+    updateLocation(userId, location);
   });
 }
 
-function updateMyStatus(status, location) {
-  if (currentUserId) {
-    const updates = {};
-    if (status !== undefined) {
-      updates.status = status;
-    }
-    if (location !== undefined) {
-      updates.location = location;
-    }
-    updates.lastUpdated = firebase.database.ServerValue.TIMESTAMP;
-
-    database.ref(`statuses/${currentUserId}`).update(updates).then(() => {
-      // Keep the location input value, no need to clear it here
-    });
-  }
+function updateLocation(userId, location) {
+  database.ref(`statuses/${userId}`).update({
+    location: location,
+    lastUpdated: firebase.database.ServerValue.TIMESTAMP
+  });
 }
 
 function setupStatusListeners() {
   console.log("setupStatusListeners called");
+  database.ref('statuses').on('child_added', (snapshot) => {
+    const userId = snapshot.key;
+    const userData = snapshot.val();
+    fetchAndDisplayMember(userId, userData);
+  });
+
   database.ref('statuses').on('child_changed', (snapshot) => {
     const userId = snapshot.key;
     const userData = snapshot.val();
-    console.log(`Status changed for user ${userId}:`, userData);
-
     const listItem = document.querySelector(`#member-${userId}`);
     if (listItem) {
       updateMemberListItem(listItem, userData);
     }
-  });
-
-  database.ref('statuses').on('child_added', (snapshot) => {
-    const userId = snapshot.key;
-    const userData = snapshot.val();
-    console.log(`New status added for user ${userId}:`, userData);
-    fetchAndDisplayMember(userId, userData);
   });
 
   database.ref('statuses').on('child_removed', (snapshot) => {
@@ -246,13 +199,10 @@ function fetchAndDisplayMember(userId, userData) {
 }
 
 function updateMemberListItem(listItem, userData, userName) {
-    const name = userName || listItem.querySelector('.member-name').textContent.replace(':', ''); // Use existing name if not provided
+    const name = userName || listItem.querySelector('.member-name').textContent.replace(':', '');
     listItem.innerHTML = `
       <div class="member-info-row">
         <span class="member-name">${name}</span>
-        <span class="member-status ${userData.status === true ? 'status-in' : 'status-out'}">
-          ${userData.status === true ? 'In' : 'Out'}
-        </span>
         ${userData.location ? `<span class="member-location">${userData.location}</span>` : ''}
       </div>
       ${userData.lastUpdated ? `

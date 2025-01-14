@@ -74,41 +74,21 @@ h1, h2 {
   opacity: 0.9;
 }
 
-.in-button {
-  background-color: #28a745;
-}
-
-.out-button {
-  background-color: #dc3545;
-}
-
-/* My Status Display */
-.status-display {
-  margin-bottom: 5px; /* Reduced margin */
-  border: 1px solid #eee;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-  text-align: center;
-  font-size: 1.05em;
-}
-
-/* Status Buttons Container */
-.status-buttons {
-  display: flex;
-  gap: 10px; /* Space between buttons */
-  margin-bottom: 15px;
-  justify-content: center; /* Center the buttons */
-}
-
 /* Location Group - Align Input and Button */
 .location-group {
   display: flex;
   align-items: center;
   gap: 10px; /* Space between input and button */
+  margin-bottom: 15px; /* Add some bottom margin */
+}
+
+.location-group label {
+  flex-shrink: 0; /* Prevent label from shrinking */
 }
 
 .location-group input[type="text"] {
-  flex-grow: 1;
+  flex-grow: 1; /* Allow input to take up available space */
+  padding: 8px;
 }
 
 /* Team Members List Styling */
@@ -123,131 +103,27 @@ h1, h2 {
   border-radius: 6px;
   background-color: #fff;
   display: flex;
-  flex-direction: column; /* Stack elements vertically */
-  position: relative; /* Make the member item a positioning context */
-  align-items: flex-start; /* Align items to the start */
+  flex-direction: column;
+  position: relative;
+  align-items: flex-start;
   font-size: 1em;
   padding: 10px;
 }
 
-.member > span {
-  text-align: left; /* Align all text within spans to the left */
-  margin-right: 0;
-}
-
-.member > span:first-child {
-  flex-basis: 100%; /* Full width for username on small screens */
-  margin-bottom: 5px; /* Add space below username */
-}
-
-.member > span:nth-child(2) {
-  min-width: 60px;
-  display: inline-block;
-  margin-left: 0;
-}
-
-.status-in {
-  color: green;
-  font-weight: bold;
-}
-
-.status-out {
-  color: red;
-  font-weight: bold;
-}
-
-.timestamp {
-  font-size: 0.8em;
-  color: #888;
-  margin-top: 10px; /* Add some space above the timestamp */
-  align-self: flex-start; /* Align timestamp to the left */
-}
-
-/* Error Message Styling */
-.error-message {
-  color: red;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-}
-
-/* Media Query for Smaller Screens (Phones) */
-@media (max-width: 768px) {
-  .container {
-    width: 98%; /* Take up almost full width */
-    margin: 10px auto; /* Further reduced margins */
-  }
-
-  h1 {
-    font-size: 1.8em; /* Slightly smaller main heading */
-  }
-
-  h2 {
-    font-size: 1.4em; /* Slightly smaller sub-heading */
-  }
-
-  .form-group label {
-    font-size: 1em; /* Revert label size */
-  }
-
-  .button {
-    padding: 14px 22px; /* Slightly larger buttons */
-    font-size: 1.1em;
-    margin-bottom: 8px;
-    display: block; /* Make buttons full-width */
-    width: 100%;
-    text-align: center;
-  }
-
-  .status-buttons {
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: stretch; /* Make buttons take full width */
-  }
-
-  .location-group {
-    flex-direction: column; /* Stack location input and button */
-    align-items: stretch;
-  }
-
-  .location-group input[type="text"] {
-    margin-bottom: 10px; /* Add space below input */
-  }
-
-  .member {
-    flex-direction: column; /* Stack elements in member list */
-    align-items: flex-start; /* Align items to the start */
-  }
-
-  .member > span:nth-child(2) {
-    margin-left: 0;
-    margin-bottom: 5px;
-  }
-
-  .member > span:last-child {
-    margin-left: 0; /* Align location to the left */
-    overflow: hidden; /* Add for text overflow */
-    text-overflow: ellipsis; /* Add for text overflow */
-    white-space: nowrap; /* Add for text overflow */
-  }
-}
-
 .member-info-row {
   display: flex;
-  justify-content: space-between; /* Distribute space evenly */
-  align-items: center; /* Vertically align items in the row */
-  margin-bottom: 5px; /* Add a little space between the info row and timestamp */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
 }
 
 .member-info-row span {
-  margin-right: 10px; /* Add spacing between items in the info row */
+  margin-right: 10px;
 }
 
 .member-name {
-  flex-grow: 1; /* Allow the name to take up available space */
+  flex-grow: 1;
   font-weight: bold;
-}
-
-.member-status {
-  /* Add specific styling for the status if needed */
 }
 
 .member-location {
@@ -258,25 +134,66 @@ h1, h2 {
 .timestamp-row {
   font-size: 0.8em;
   color: #888;
-  text-align: right; /* Align the timestamp to the right */
-  padding-right: 10px; /* Add some padding on the right */
+  text-align: right;
+  padding-right: 10px;
 }
 
-/* Media Query Adjustments (if needed) */
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+/* Media Query for Smaller Screens (Phones) */
 @media (max-width: 768px) {
+  .container {
+    width: 98%;
+    margin: 10px auto;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+
+  h2 {
+    font-size: 1.4em;
+  }
+
+  .form-group label {
+    font-size: 1em;
+  }
+
+  .button {
+    padding: 14px 22px;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .location-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .location-group input[type="text"] {
+    margin-bottom: 10px;
+  }
+
   .member-info-row {
-    flex-direction: column; /* Stack items on smaller screens */
-    align-items: flex-start; /* Align items to the start when stacked */
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .member-info-row span {
-    margin-bottom: 3px; /* Add spacing when stacked */
+    margin-bottom: 3px;
     margin-right: 0;
-    display: block; /* Make each span take full width when stacked */
+    display: block;
   }
 
   .timestamp-row {
-    text-align: left; /* Align timestamp to the left on smaller screens */
+    text-align: left;
     padding-right: 0;
   }
 }

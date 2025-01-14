@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Team In/Out Board</title>
+  <title>Imaging Status Board</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -18,7 +18,8 @@
         <label for="login-password">Password:</label>
         <input type="password" id="login-password" autocomplete="current-password">
       </div>
-      <p id="login-error" class="error-message"></p> <button id="login-btn" class="button primary">Login</button>
+      <p id="login-error" class="error-message"></p>
+      <button id="login-btn" class="button primary">Login</button>
 
       <h2>Register</h2>
       <div class="form-group">
@@ -38,20 +39,17 @@
     </div>
 
     <div id="team-board" class="card" style="display: none;">
-      <div id="my-current-status" class="status-display"></div>
-      <div class="form-group status-buttons">
-        <button id="in-btn" class="button in-button">In</button>
-        <button id="out-btn" class="button out-button">Out</button>
-      </div>
       <div class="form-group location-group">
-        <label for="location-input">Location:</label>
+        <label for="location-input">Status Update</label>
         <input type="text" id="location-input" placeholder="Where are you?">
         <button id="location-ok-btn" class="button">OK</button>
       </div>
-      <h2>Team Members</h2>
+      <h2>Team Info</h2>
+<hr>
       <ul id="team-members-list">
         <!-- Team member statuses will be displayed here -->
       </ul>
+<hr>
       <button id="logout-btn" class="button">Logout</button>
     </div>
   </div>
