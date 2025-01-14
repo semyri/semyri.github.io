@@ -170,8 +170,13 @@ function setupStatusListeners() {
     const userId = snapshot.key;
     const userData = snapshot.val();
     const listItem = document.querySelector(`#member-${userId}`);
-    if (listItem) {
+    if (listItem) { // Add this check
       updateMemberListItem(listItem, userData);
+    } else {
+      // Optionally, handle the case where the element doesn't exist yet.
+      // This might happen if the 'child_changed' event fires very quickly
+      // after a user is added but before the 'child_added' has fully processed.
+      console.warn(`Could not find list item for user ID: ${userId} during 'child_changed'`);
     }
   });
 
