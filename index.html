@@ -7,6 +7,13 @@
 </head>
 <body>
   <div class="container">
+    <div class="dark-mode-switch">
+      <label class="switch">
+        <input type="checkbox" id="dark-mode-toggle">
+        <span class="slider round"></span>
+      </label>
+      <span class="dark-mode-text">Dark Mode</span>
+    </div>
 
     <div id="auth-container" class="card">
       <h2>Login</h2>
@@ -68,6 +75,15 @@
       </div>
       <button id="logout-btn" class="button">Logout</button>
     </div>
+
+    <!-- History Popup (Initially Hidden) -->
+    <div class="history-popup hidden">
+      <h3>Location History</h3>
+      <ul>
+        </ul>
+      <button class="close-popup-btn">Close</button>
+    </div>
+
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
