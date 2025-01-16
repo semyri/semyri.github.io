@@ -36,41 +36,6 @@ const locationOkBtn = document.getElementById('location-ok-btn');
 const shortcutsList = document.getElementById('shortcuts-list');
 const closeShortcutsBtn = document.getElementById('close-shortcuts-btn');
 
-const darkModeToggle = document.getElementById('dark-mode-toggle');
-const body = document.body;
-
-// History Popup Elements
-const historyPopup = document.querySelector('.history-popup');
-const historyPopupList = historyPopup.querySelector('ul');
-const closeHistoryBtn = historyPopup.querySelector('.close-popup-btn');
-
-// Function to enable dark mode
-function enableDarkMode() {
-  body.classList.add('dark-mode');
-  localStorage.setItem('darkMode', 'enabled');
-}
-
-// Function to disable dark mode
-function disableDarkMode() {
-  body.classList.remove('dark-mode');
-  localStorage.setItem('darkMode', 'disabled');
-}
-
-// Check for user's preference in localStorage
-if (localStorage.getItem('darkMode') === 'enabled') {
-  enableDarkMode();
-  darkModeToggle.checked = true;
-}
-
-// Event listener for the dark mode toggle
-darkModeToggle.addEventListener('change', () => {
-  if (darkModeToggle.checked) {
-    enableDarkMode();
-  } else {
-    disableDarkMode();
-  }
-});
-
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
   e.preventDefault();
@@ -338,10 +303,8 @@ let currentHistoryPopup = null; // To track if a popup is already open
 function showLocationHistory(userId, targetElement) {
   // Close any existing popup
   if (currentHistoryPopup) {
-    currentHistoryPopup.classList.add('hidden');
+    currentHistoryPopup.remove();
     currentHistoryPopup = null;
-    // Remove the click outside listener if a popup was open
-    window.removeEventListener('click', outsideClickListener);
   }
 
   const historyRef = database.ref(`statuses/${userId}/history`);
@@ -351,46 +314,58 @@ function showLocationHistory(userId, targetElement) {
     if (history) {
       const historyArray = Object.values(history).sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp, newest first
 
-      historyPopupList.innerHTML = historyArray.map(entry => {
-        const dateTime = new Date(entry.timestamp).toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        });
-        return `<li>${entry.location} - ${dateTime}</li>`;
-      }).join('');
+      const popup = document.createElement('div');
+      popup.classList.add('history-popup');
+      popup.innerHTML = `
+        <h3>Location History</h3>
+        <ul>
+          ${historyArray.map(entry => {
+            const dateTime = new Date(entry.timestamp).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            });
+            return `<li>${entry.location} - ${dateTime}</li>`;
+          }).join('')}
+        </ul>
+        <button class="close-popup-btn">Close</button>
+      `;
 
-      // Position the popup - Let's try a fixed position in the center for now, adjust as needed
-      historyPopup.style.top = `50%`;
-      historyPopup.style.left = `50%`;
-      historyPopup.style.transform = `translate(-50%, -50%)`;
-      historyPopup.style.position = 'fixed'; // Use fixed for center positioning
+      // Position the popup near the clicked element
+      const rect = targetElement.getBoundingClientRect();
+      popup.style.position = 'absolute';
+      popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      popup.style.left = `${rect.left + window.scrollX}px`;
+      popup.style.border = '1px solid #ccc';
+      popup.style.backgroundColor = '#fff';
+      popup.style.padding = '15px';
+      popup.style.borderRadius = '5px';
+      popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+      popup.style.zIndex = '1001'; // Ensure it's above other elements
 
-      historyPopup.classList.remove('hidden');
-      currentHistoryPopup = historyPopup;
+      document.body.appendChild(popup);
+      currentHistoryPopup = popup;
 
       // Add event listener to close button
-      closeHistoryBtn.addEventListener('click', () => {
-        historyPopup.classList.add('hidden');
+      popup.querySelector('.close-popup-btn').addEventListener('click', () => {
+        popup.remove();
         currentHistoryPopup = null;
-        window.removeEventListener('click', outsideClickListener); // Remove listener when closing
-      }, { once: true }); // Remove listener after first execution
+      });
 
-      // Add click outside listener
-      window.addEventListener('click', outsideClickListener);
+      // Close popup when clicking outside
+      window.addEventListener('click', function outsideClickListener(event) {
+        if (popup.contains(event.target) || targetElement.contains(event.target)) {
+          return;
+        }
+        popup.remove();
+        currentHistoryPopup = null;
+        window.removeEventListener('click', outsideClickListener);
+      });
     }
   });
-}
-
-function outsideClickListener(event) {
-  if (currentHistoryPopup && !historyPopup.contains(event.target) && event.target !== document.querySelector('.clickable-location')) {
-    historyPopup.classList.add('hidden');
-    currentHistoryPopup = null;
-    window.removeEventListener('click', outsideClickListener); // Remove listener after closing
-  }
 }
 
 function focusOnInput(inputId) {

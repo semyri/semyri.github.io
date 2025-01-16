@@ -2,55 +2,48 @@
 body {
   font-family: sans-serif;
   margin: 0;
-  background-color: var(--background-color); /* Use CSS variable */
-  color: var(--text-color); /* Use CSS variable */
-  line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: #f4f4f4; /* Light gray background */
+  color: #333; /* Dark gray text */
+  line-height: 1.6; /* Improved line spacing for readability */
 }
 
 .container {
-  width: 95%;
-  max-width: 600px;
-  margin: 15px auto;
-  position: relative;
-  min-height: 100vh;
-  padding-bottom: 60px;
-  box-sizing: border-box;
+  width: 95%; /* Take up more width on smaller screens */
+  max-width: 600px; /* Adjust max-width for phones */
+  margin: 15px auto; /* Reduce top/bottom margin */
 }
 
 h1, h2 {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 15px; /* Reduce bottom margin */
 }
 
 /* Card Styling for Sections */
 .card {
-  background-color: var(--card-background); /* Use CSS variable */
-  color: var(--text-color); /* Use CSS variable */
-  margin-bottom: 15px;
+  background-color: #fff;
+  margin-bottom: 15px; /* Reduce bottom margin */
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* Slightly softer shadow */
   padding: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Form Group Styling */
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 12px; /* Reduce bottom margin */
 }
 
 .form-group label {
   display: block;
   margin-bottom: 4px;
   font-weight: bold;
-  font-size: 0.95em;
+  font-size: 0.95em; /* Slightly smaller label text */
 }
 
 .form-group input[type="email"],
 .form-group input[type="password"],
 .form-group input[type="text"] {
   width: calc(100% - 16px);
-  padding: 10px;
+  padding: 10px; /* Increase padding for touch */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1em;
@@ -58,23 +51,23 @@ h1, h2 {
 
 /* Button Styling */
 .button {
-  background-color: var(--button-background); /* Use CSS variable */
-  color: var(--button-color); /* Use CSS variable */
-  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px; /* Increase padding for touch */
   border: none;
-  border-radius: 6px;
+  border-radius: 6px; /* Slightly more rounded */
   cursor: pointer;
-  font-size: 1.05em;
+  font-size: 1.05em; /* Slightly larger font */
   transition: background-color 0.3s ease;
-  margin-bottom: 5px;
+  margin-bottom: 5px; /* Add some bottom margin to buttons */
 }
 
 .button.primary {
-  background-color: var(--button-primary-background); /* Use CSS variable */
+  background-color: #28a745;
 }
 
 .button.secondary {
-  background-color: var(--button-secondary-background); /* Use CSS variable */
+  background-color: #800080;
 }
 
 .button:hover {
@@ -85,16 +78,16 @@ h1, h2 {
 .location-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 10px; /* Space between input and button */
+  margin-bottom: 15px; /* Add some bottom margin */
 }
 
 .location-group label {
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent label from shrinking */
 }
 
 .location-group input[type="text"] {
-  flex-grow: 1;
+  flex-grow: 1; /* Allow input to take up available space */
   padding: 8px;
 }
 
@@ -108,15 +101,13 @@ h1, h2 {
   border: 1px solid #ddd;
   margin-bottom: 10px;
   border-radius: 6px;
-  background-color: var(--member-background); /* Use CSS variable */
-  color: var(--text-color); /* Use CSS variable */
+  background-color: #fff;
   display: flex;
   flex-direction: column;
   position: relative;
   align-items: flex-start;
   font-size: 1em;
   padding: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .member-info-row {
@@ -210,21 +201,23 @@ h1, h2 {
 
 .login-button-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
+  justify-content: space-between; /* Distribute space evenly between buttons */
+  align-items: center; /* Vertically align items in the center */
+  gap: 10px; /* Adjust spacing between buttons as needed */
+  margin-top: 15px; /* Add some space above the buttons */
 }
 
 .login-button-row .button {
-  flex-grow: 1;
+  flex-grow: 1; /* Allow buttons to expand and take up available space */
 }
 
 /* Media Query for Smaller Screens (Phones) - Adjust as needed */
 @media (max-width: 768px) {
+  /* ... your existing media queries ... */
+
   .login-button-row {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: column; /* Stack buttons on smaller screens */
+    align-items: stretch; /* Make buttons full width on smaller screens */
   }
 
   .login-button-row .button {
@@ -235,25 +228,22 @@ h1, h2 {
 
 .shortcuts-menu {
   margin-top: 20px;
-  text-align: center;
+  text-align: center; /* Center the toggle button */
 }
 
 #shortcuts-list {
-  position: fixed;
+  position: fixed; /* Stay in place when scrolling */
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--card-background); /* Use CSS variable */
-  color: var(--text-color); /* Use CSS variable */
+  transform: translate(-50%, -50%); /* Center the menu */
+  background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 1000; /* Ensure it's on top of other content */
   width: 80%;
   max-width: 500px;
-  text-align: left;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  border: 1px solid #ccc;
+  text-align: left; /* Align text within the list */
 }
 
 #shortcuts-list h3 {
@@ -273,7 +263,7 @@ h1, h2 {
 
 #shortcuts-list li strong {
   display: inline-block;
-  width: 80px;
+  width: 80px; /* Adjust as needed */
   font-weight: bold;
 }
 
@@ -290,122 +280,6 @@ h1, h2 {
   #shortcuts-list {
     width: 95%;
   }
-}
-
-/* Dark Mode Switch Styles */
-.dark-mode-switch {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 0;
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-.dark-mode-text {
-  margin-left: 10px;
-}
-
-/* Define CSS variables for theming */
-:root {
-  --background-color: #f4f4f4;
-  --text-color: #333;
-  --card-background: #fff;
-  --button-background: #007bff;
-  --button-color: white;
-  --button-primary-background: #28a745;
-  --button-secondary-background: #800080;
-  --member-background: #fff;
-}
-
-/* Dark Mode Theme */
-body.dark-mode {
-  --background-color: #121212; /* Dark background */
-  --text-color: #ffffff; /* Light text */
-  --card-background: #333;
-  --button-background: #00aaff;
-  --button-color: #000;
-  --button-primary-background: #38c755;
-  --button-secondary-background: #a020f0;
-  --member-background: #444;
-}
-
-body.dark-mode .member-location {
-  color: white;
-}
-
-body.dark-mode #shortcuts-list {
-  background-color: #333;
-  color: #fff;
-  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
-  border: 1px solid #555;
-}
-
-body.dark-mode .history-popup {
-  background-color: #333;
-  color: #fff;
-  border-color: #555;
-}
-
-body.dark-mode .history-popup .close-popup-btn {
-  background-color: #ff4d4d;
-  color: #000;
 }
 
 .clickable-location {
