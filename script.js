@@ -36,6 +36,29 @@ const locationOkBtn = document.getElementById('location-ok-btn');
 const shortcutsList = document.getElementById('shortcuts-list');
 const closeShortcutsBtn = document.getElementById('close-shortcuts-btn');
 
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+const body = document.body;
+const darkModeClass = 'dark-mode';
+
+// Function to toggle dark mode
+function toggleDarkMode() {
+  body.classList.toggle(darkModeClass);
+  const isDarkMode = body.classList.contains(darkModeClass);
+  localStorage.setItem('darkMode', isDarkMode); // Store preference
+}
+
+// Event listener for the dark mode toggle checkbox
+darkModeToggle.addEventListener('change', toggleDarkMode);
+
+// Check for user's preference on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const savedDarkMode = localStorage.getItem('darkMode');
+  if (savedDarkMode === 'true') {
+    body.classList.add(darkModeClass);
+    darkModeToggle.checked = true;
+  }
+});
+
 // Event listener for registration button
 registerBtn.addEventListener('click', (e) => {
   e.preventDefault();
@@ -206,6 +229,8 @@ function setupLocationUpdate(userId) {
 
   locationOkBtn.addEventListener('click', () => {
     const location = locationInput.value;
+    // Disable the button immediately
+    locationOkBtn.disabled = true;
     updateLocation(userId, location);
   });
 }
@@ -224,9 +249,28 @@ function updateLocation(userId, location) {
     updates[`statuses/${userId}/lastUpdated`] = firebase.database.ServerValue.TIMESTAMP;
     updates[`statuses/${userId}/history`] = { ...snapshot.val(), [Date.now()]: locationData }; // Add new entry
 
-    database.ref().update(updates);
+    database.ref().update(updates)
+      .then(() => {
+        // Re-enable the button after the update is successful
+        locationOkBtn.disabled = false;
+      })
+      .catch(() => {
+        // Also re-enable the button if there's an error
+        locationOkBtn.disabled = false;
+      });
   });
 }
+
+locationInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    // Check if the button is not already disabled
+    if (!locationOkBtn.disabled) {
+      // Trigger the click event on the location OK button
+      locationOkBtn.click();
+    }
+    event.preventDefault(); // Prevent form submission or other default behavior
+  }
+});
 
 function setupStatusListeners() {
   console.log("setupStatusListeners called");
@@ -340,7 +384,7 @@ function showLocationHistory(userId, targetElement) {
       popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
       popup.style.left = `${rect.left + window.scrollX}px`;
       popup.style.border = '1px solid #ccc';
-      popup.style.backgroundColor = '#fff';
+
       popup.style.padding = '15px';
       popup.style.borderRadius = '5px';
       popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
@@ -403,14 +447,6 @@ document.addEventListener('keydown', (event) => {
         event.preventDefault();
         break;
     }
-  }
-});
-
-locationInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    // Trigger the click event on the location OK button
-    locationOkBtn.click();
-    event.preventDefault(); // Prevent form submission or other default behavior
   }
 });
 
