@@ -1,1 +1,1 @@
-In/Out board for imaging department
+Disc Golf Weather checker.
