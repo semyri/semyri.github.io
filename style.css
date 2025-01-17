@@ -10,14 +10,39 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
+.controls-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.action-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+}
+
+.location-select-container {
+    text-align: center; /* Center the label and dropdown */
+    margin-bottom: 20px; /* Add some space below the dropdown */
+}
+
 #location-select {
-    display: block;
-    margin: 10px auto;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
     width: 80%;
     max-width: 300px;
+    margin: 5px auto; /* Center the dropdown */
+    display: block; /* Make it a block element for margin auto to work */
 }
 
 #weather-data {
@@ -30,30 +55,6 @@ h1, h2 {
 
 #hourly-forecast, #daily-forecast {
     margin-bottom: 20px;
-}
-
-.hourly-item, .daily-item {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-
-
-#toggle-forecast {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-}
-
-#toggle-forecast:hover {
-    background-color: #0056b3;
 }
 
 .seven-day-item {
@@ -71,5 +72,9 @@ h1, h2 {
     }
     #location-select {
         width: 95%;
+    }
+    .controls-container {
+        flex-direction: column;
+        align-items: center;
     }
 }

@@ -1,3 +1,4 @@
+const currentLocationButton = document.getElementById('current-location-button');
 const locationSelect = document.getElementById('location-select');
 const toggleForecastButton = document.getElementById('toggle-forecast');
 const currentDayDataDiv = document.getElementById('current-day-data');
@@ -15,9 +16,10 @@ const locations = {
 const apiUrlBase = 'https://api.open-meteo.com/v1/forecast';
 const defaultLocation = 'venus';
 
-let currentWeatherData = null; // Store the fetched 7-day data
+let currentWeatherData = null;
 
 function getWeatherData(latitude, longitude) {
+    // ... (rest of your getWeatherData function remains the same)
     const params = new URLSearchParams({
         latitude: latitude,
         longitude: longitude,
@@ -38,8 +40,8 @@ function getWeatherData(latitude, longitude) {
             return response.json();
         })
         .then(data => {
-            currentWeatherData = data; // Store the data
-            displayCurrentDayForecast(data.daily, 0); // Display today's forecast
+            currentWeatherData = data;
+            displayCurrentDayForecast(data.daily, 0);
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);
@@ -49,6 +51,7 @@ function getWeatherData(latitude, longitude) {
 }
 
 function getWeatherCondition(code) {
+    // ... (your getWeatherCondition function remains the same)
     switch (code) {
         case 0: return "Clear sky";
         case 1: return "Mainly clear";
@@ -70,7 +73,8 @@ function getWeatherCondition(code) {
 }
 
 function displayCurrentDayForecast(dailyData, index) {
-    currentDayDataDiv.innerHTML = ''; // Clear previous content
+    // ... (your displayCurrentDayForecast function remains the same)
+    currentDayDataDiv.innerHTML = '';
     const date = new Date(dailyData.time[index]);
     const weatherCode = dailyData.weather_code[index];
     const tempMax = dailyData.temperature_2m_max[index];
@@ -94,7 +98,8 @@ function displayCurrentDayForecast(dailyData, index) {
 }
 
 function displaySevenDayForecast(dailyData) {
-    sevenDayForecastDiv.innerHTML = ''; // Clear previous content
+    // ... (your displaySevenDayForecast function remains the same)
+    sevenDayForecastDiv.innerHTML = '';
     dailyData.time.forEach((time, index) => {
         const date = new Date(time);
         const weatherCode = dailyData.weather_code[index];
@@ -141,6 +146,36 @@ toggleForecastButton.addEventListener('click', () => {
         currentForecastSection.style.display = 'block';
         sevenDayForecastSection.style.display = 'none';
         toggleForecastButton.textContent = 'Show 7-Day Forecast';
+    }
+});
+
+// Event listener for the current location button
+currentLocationButton.addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                getWeatherData(latitude, longitude);
+            },
+            error => {
+                let errorMessage = "Unable to retrieve your location.";
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "Location access was denied. Please allow location access to use this feature.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "Your location information is currently unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "The request to get your location timed out.";
+                        break;
+                }
+                alert(errorMessage); // Or display the error message in a designated area on your page
+            }
+        );
+    } else {
+        alert("Geolocation is not supported by your browser.");
     }
 });
 

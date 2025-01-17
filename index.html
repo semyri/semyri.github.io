@@ -3,25 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather on My Phone</title>
+    <title>Disc Golf Weather Genie</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Weather Jockey</h1>
+    <h1>Disc Golf Weather Genie</h1>
 
-   
-    <select id="location-select">
-        <option value="venus">Venus</option>
-        <option value="dallas">Dallas</option>
-        <option value="waco">Waco</option>
-        <option value="fort-worth">Fort Worth</option>
-    </select>
+    <div class="controls-container">
+        <button id="current-location-button" class="action-button">Use Current Location</button>
+        <button id="toggle-forecast" class="action-button">Show 7-Day Forecast</button>
+    </div>
 
-    <button id="toggle-forecast">Show 7-Day Forecast</button>
+    <div class="location-select-container">
+        <label for="location-select">Choose a Saved Location:</label>
+        <select id="location-select">
+            <option value="venus">Venus</option>
+            <option value="dallas">Dallas</option>
+            <option value="waco">Waco</option>
+            <option value="fort-worth">Fort Worth</option>
+        </select>
+    </div>
 
     <div id="current-forecast">
         <h2>Today's Forecast</h2>
-        <div id="current-day-data" class="seven-day-item"> <!-- Added the class here -->
+        <div id="current-day-data" class="seven-day-item">
             <!-- Current day's data will be displayed here -->
         </div>
     </div>
