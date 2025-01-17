@@ -5,6 +5,12 @@ const currentDayDataDiv = document.getElementById('current-day-data');
 const sevenDayForecastDiv = document.getElementById('seven-day-data');
 const sevenDayForecastSection = document.getElementById('seven-day-forecast');
 const currentForecastSection = document.getElementById('current-forecast');
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+const body = document.body;
+const toggleText = document.querySelector('.toggle-text');
+const actionButtons = document.querySelectorAll('.action-button');
+const locationDropdown = document.getElementById('location-select');
+const weatherDataSection = document.getElementById('weather-data');
 
 const locations = {
     venus: { latitude: 32.4335, longitude: -97.1025 },
@@ -19,7 +25,6 @@ const defaultLocation = 'venus';
 let currentWeatherData = null;
 
 function getWeatherData(latitude, longitude) {
-    // ... (rest of your getWeatherData function remains the same)
     const params = new URLSearchParams({
         latitude: latitude,
         longitude: longitude,
@@ -42,6 +47,7 @@ function getWeatherData(latitude, longitude) {
         .then(data => {
             currentWeatherData = data;
             displayCurrentDayForecast(data.daily, 0);
+            displaySevenDayForecast(data.daily);
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);
@@ -51,7 +57,6 @@ function getWeatherData(latitude, longitude) {
 }
 
 function getWeatherCondition(code) {
-    // ... (your getWeatherCondition function remains the same)
     switch (code) {
         case 0: return "Clear sky";
         case 1: return "Mainly clear";
@@ -73,7 +78,6 @@ function getWeatherCondition(code) {
 }
 
 function displayCurrentDayForecast(dailyData, index) {
-    // ... (your displayCurrentDayForecast function remains the same)
     currentDayDataDiv.innerHTML = '';
     const date = new Date(dailyData.time[index]);
     const weatherCode = dailyData.weather_code[index];
@@ -98,7 +102,6 @@ function displayCurrentDayForecast(dailyData, index) {
 }
 
 function displaySevenDayForecast(dailyData) {
-    // ... (your displaySevenDayForecast function remains the same)
     sevenDayForecastDiv.innerHTML = '';
     dailyData.time.forEach((time, index) => {
         const date = new Date(time);
@@ -112,6 +115,9 @@ function displaySevenDayForecast(dailyData) {
 
         const dailyItem = document.createElement('div');
         dailyItem.classList.add('seven-day-item');
+        if (body.classList.contains('dark-mode')) {
+            dailyItem.classList.add('dark-mode');
+        }
         dailyItem.innerHTML = `
             <p><strong>${date.toLocaleDateString()}</strong></p>
             <p>Weather: ${getWeatherCondition(weatherCode)}</p>
@@ -136,7 +142,7 @@ locationSelect.addEventListener('change', () => {
 // Event listener for the toggle button
 toggleForecastButton.addEventListener('click', () => {
     if (sevenDayForecastSection.style.display === 'none') {
-        if (currentWeatherData) {
+        if (currentWeatherData && currentWeatherData.daily) {
             displaySevenDayForecast(currentWeatherData.daily);
         }
         sevenDayForecastSection.style.display = 'block';
@@ -171,13 +177,39 @@ currentLocationButton.addEventListener('click', () => {
                         errorMessage = "The request to get your location timed out.";
                         break;
                 }
-                alert(errorMessage); // Or display the error message in a designated area on your page
+                alert(errorMessage);
             }
         );
     } else {
         alert("Geolocation is not supported by your browser.");
     }
 });
+
+// Function to toggle dark mode
+function toggleDarkMode() {
+    body.classList.toggle('dark-mode');
+    toggleText.textContent = body.classList.contains('dark-mode') ? 'Dark Mode' : 'Light Mode';
+    actionButtons.forEach(button => button.classList.toggle('dark-mode'));
+    locationDropdown.classList.toggle('dark-mode');
+    const sevenDayItems = document.querySelectorAll('.seven-day-item');
+    sevenDayItems.forEach(item => item.classList.toggle('dark-mode', body.classList.contains('dark-mode')));
+    if (weatherDataSection) {
+        weatherDataSection.classList.toggle('dark-mode');
+    }
+    if (sevenDayForecastSection.style.display === 'block' && currentWeatherData && currentWeatherData.daily) {
+        displaySevenDayForecast(currentWeatherData.daily);
+    }
+    localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+}
+
+// Event listener for dark mode toggle
+darkModeToggle.addEventListener('change', toggleDarkMode);
+
+// Check for saved dark mode preference on page load
+if (localStorage.getItem('darkMode') === 'true') {
+    darkModeToggle.checked = true;
+    toggleDarkMode();
+}
 
 // Initial load - fetch data for the default location
 const initialLocationData = locations[defaultLocation];

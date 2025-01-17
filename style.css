@@ -3,16 +3,34 @@ body {
     margin: 20px;
     background-color: #f4f4f4;
     color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-image: url('disc genie.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #f8f8f2;
 }
 
 h1, h2 {
     text-align: center;
     margin-bottom: 20px;
+    background-color: rgba(240, 240, 240, 0.8);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+body.dark-mode h1,
+body.dark-mode h2 {
+    background-color: rgba(40, 40, 40, 0.8);
 }
 
 .controls-container {
     display: flex;
-    justify-content: center;
+    /* Remove justify-content: center to align to the start (left) */
     gap: 10px;
     margin-bottom: 20px;
 }
@@ -24,15 +42,44 @@ h1, h2 {
     background-color: #007bff;
     color: white;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .action-button:hover {
     background-color: #0056b3;
 }
 
+.action-button.dark-mode {
+    background-color: #00aaff;
+    color: #1e1e1e;
+}
+
+.action-button.dark-mode:hover {
+    background-color: #0088cc;
+}
+
 .location-select-container {
-    text-align: center; /* Center the label and dropdown */
-    margin-bottom: 20px; /* Add some space below the dropdown */
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: rgba(240, 240, 240, 0.6);
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+body.dark-mode .location-select-container {
+    background-color: rgba(40, 40, 40, 0.6);
+}
+
+.location-select-container label {
+    background-color: rgba(240, 240, 240, 0.8);
+    padding: 5px;
+    border-radius: 3px;
+}
+
+body.dark-mode .location-select-container label {
+    background-color: rgba(40, 40, 40, 0.8);
+    color: #f8f8f2;
 }
 
 #location-select {
@@ -41,16 +88,42 @@ h1, h2 {
     border: 1px solid #ccc;
     width: 80%;
     max-width: 300px;
-    margin: 5px auto; /* Center the dropdown */
-    display: block; /* Make it a block element for margin auto to work */
+    margin: 5px auto;
+    display: block;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    background-color: white;
+    color: #333;
+}
+
+#location-select.dark-mode {
+    background-color: #333;
+    color: #f8f8f2;
+    border-color: #555;
+}
+
+#location-select option {
+    background-color: white;
+    color: #333;
+}
+
+#location-select.dark-mode option {
+    background-color: #333;
+    color: #f8f8f2;
 }
 
 #weather-data {
     margin-top: 20px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#weather-data.dark-mode {
+    background-color: rgba(51, 51, 51, 0.8);
+    color: #f8f8f2;
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
 }
 
 #hourly-forecast, #daily-forecast {
@@ -62,7 +135,27 @@ h1, h2 {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: rgba(249, 249, 249, 0.7);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.seven-day-item.dark-mode {
+    background-color: rgba(68, 68, 68, 0.7);
+    color: #f8f8f2;
+    border-color: #666;
+}
+
+.seven-day-item p {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 3px 5px;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 0;
+}
+
+.seven-day-item.dark-mode p {
+    background-color: rgba(80, 80, 80, 0.6);
+    color: #f8f8f2;
 }
 
 /* Make it more responsive for smaller screens */
@@ -75,6 +168,93 @@ h1, h2 {
     }
     .controls-container {
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start; /* Align items to the start in column layout */
     }
+}
+
+/* Dark Mode Toggle Switch Styles */
+.toggle-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-right: 20px;
+    background-color: rgba(240, 240, 240, 0.6);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+body.dark-mode .toggle-container {
+    background-color: rgba(40, 40, 40, 0.6);
+}
+
+.toggle-text {
+    margin-left: 10px;
+    font-size: 0.9em;
+    color: #666;
+    transition: color 0.3s ease;
+    background-color: rgba(240, 240, 240, 0.8);
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+body.dark-mode .toggle-text {
+    color: #ccc;
+    background-color: rgba(40, 40, 40, 0.8);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
 }
