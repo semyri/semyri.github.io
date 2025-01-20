@@ -5,12 +5,11 @@ const currentDayDataDiv = document.getElementById('current-day-data');
 const sevenDayForecastDiv = document.getElementById('seven-day-data');
 const sevenDayForecastSection = document.getElementById('seven-day-forecast');
 const currentForecastSection = document.getElementById('current-forecast');
-const darkModeToggle = document.getElementById('dark-mode-toggle');
 const body = document.body;
-const toggleText = document.querySelector('.toggle-text');
 const actionButtons = document.querySelectorAll('.action-button');
 const locationDropdown = document.getElementById('location-select');
 const weatherDataSection = document.getElementById('weather-data');
+const currentConditionsBox = document.getElementById('current-conditions-box');
 
 const locations = {
     venus: { latitude: 32.4335, longitude: -97.1025 },
@@ -20,9 +19,51 @@ const locations = {
 };
 
 const apiUrlBase = 'https://api.open-meteo.com/v1/forecast';
+const currentConditionsApiUrlBase = 'https://api.open-meteo.com/v1/forecast'; // Same base URL
 const defaultLocation = 'venus';
 
 let currentWeatherData = null;
+
+function getCurrentWeather(latitude, longitude) {
+    const params = new URLSearchParams({
+        latitude: latitude,
+        longitude: longitude,
+        current_weather: true,
+        temperature_unit: 'fahrenheit',
+        wind_speed_unit: 'mph'
+    });
+
+    const apiUrl = `${currentConditionsApiUrlBase}?${params.toString()}`;
+
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayCurrentConditions(data.current_weather);
+        })
+        .catch(error => {
+            console.error('Error fetching current weather data:', error);
+            currentConditionsBox.innerHTML = '<p>Failed to fetch current weather.</p>';
+        });
+}
+
+function displayCurrentConditions(currentWeather) {
+    const temperature = currentWeather.temperature;
+    const windSpeed = currentWeather.windspeed;
+    const weatherCode = currentWeather.weathercode;
+    const condition = getWeatherCondition(weatherCode);
+
+    currentConditionsBox.innerHTML = `
+        <p><strong>Current Conditions:</strong></p>
+        <p>Temperature: ${temperature}°F</p>
+        <p>Weather: ${condition}</p>
+        <p>Wind Speed: ${windSpeed} mph</p>
+    `;
+}
 
 function getWeatherData(latitude, longitude) {
     const params = new URLSearchParams({
@@ -46,13 +87,34 @@ function getWeatherData(latitude, longitude) {
         })
         .then(data => {
             currentWeatherData = data;
-            displayCurrentDayForecast(data.daily, 0);
+            // Find the index for the current day
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+
+            let currentDayIndex = -1;
+            for (let i = 0; i < data.daily.time.length; i++) {
+                const apiDate = new Date(data.daily.time[i]);
+                const apiDateString = apiDate.toISOString().split('T')[0];
+
+                if (apiDateString === todayString) {
+                    currentDayIndex = i;
+                    break;
+                }
+            }
+
+            if (currentDayIndex !== -1) {
+                displayCurrentDayForecast(data.daily, currentDayIndex);
+            } else {
+                currentDayDataDiv.innerHTML = '<p>Could not find forecast data for the current day.</p>';
+            }
             displaySevenDayForecast(data.daily);
+            getCurrentWeather(latitude, longitude); // Fetch current weather after daily forecast
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);
             currentDayDataDiv.innerHTML = '<p>Failed to fetch weather data.</p>';
             sevenDayForecastDiv.innerHTML = '';
+            currentConditionsBox.innerHTML = '<p>Failed to fetch weather data.</p>';
         });
 }
 
@@ -79,7 +141,12 @@ function getWeatherCondition(code) {
 
 function displayCurrentDayForecast(dailyData, index) {
     currentDayDataDiv.innerHTML = '';
+    if (index === -1) {
+        currentDayDataDiv.innerHTML = '<p>No forecast data available for the selected day.</p>';
+        return;
+    }
     const date = new Date(dailyData.time[index]);
+    date.setDate(date.getDate() + 1); // Add one day - TEMPORARY FIX: Consider proper timezone handling
     const weatherCode = dailyData.weather_code[index];
     const tempMax = dailyData.temperature_2m_max[index];
     const tempMin = dailyData.temperature_2m_min[index];
@@ -103,33 +170,58 @@ function displayCurrentDayForecast(dailyData, index) {
 
 function displaySevenDayForecast(dailyData) {
     sevenDayForecastDiv.innerHTML = '';
-    dailyData.time.forEach((time, index) => {
-        const date = new Date(time);
-        const weatherCode = dailyData.weather_code[index];
-        const tempMax = dailyData.temperature_2m_max[index];
-        const tempMin = dailyData.temperature_2m_min[index];
-        const sunrise = dailyData.sunrise[index];
-        const sunset = dailyData.sunset[index];
-        const precipitationSum = dailyData.precipitation_sum[index];
-        const windSpeedMax = dailyData.wind_speed_10m_max[index];
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    let startIndex = -1;
 
-        const dailyItem = document.createElement('div');
-        dailyItem.classList.add('seven-day-item');
-        if (body.classList.contains('dark-mode')) {
-            dailyItem.classList.add('dark-mode');
+    for (let i = 0; i < dailyData.time.length; i++) {
+        const apiDate = new Date(dailyData.time[i]);
+        const apiDateString = apiDate.toISOString().split('T')[0];
+        if (apiDateString === todayString) {
+            startIndex = i;
+            break;
         }
-        dailyItem.innerHTML = `
-            <p><strong>${date.toLocaleDateString()}</strong></p>
-            <p>Weather: ${getWeatherCondition(weatherCode)}</p>
-            <p>High: ${tempMax}°F</p>
-            <p>Low: ${tempMin}°F</p>
-            <p>Sunrise: ${new Date(sunrise).toLocaleTimeString()}</p>
-            <p>Sunset: ${new Date(sunset).toLocaleTimeString()}</p>
-            <p>Precipitation: ${precipitationSum} in</p>
-            <p>Max Wind Speed: ${windSpeedMax} mph</p>
-        `;
-        sevenDayForecastDiv.appendChild(dailyItem);
-    });
+    }
+
+    if (startIndex !== -1) {
+        const forecastToShow = dailyData.time.slice(startIndex).map((time, index) => ({
+            time,
+            weather_code: dailyData.weather_code[startIndex + index],
+            temperature_2m_max: dailyData.temperature_2m_max[startIndex + index],
+            temperature_2m_min: dailyData.temperature_2m_min[startIndex + index],
+            sunrise: dailyData.sunrise[startIndex + index],
+            sunset: dailyData.sunset[startIndex + index],
+            precipitation_sum: dailyData.precipitation_sum[startIndex + index],
+            wind_speed_10m_max: dailyData.wind_speed_10m_max[startIndex + index]
+        }));
+
+        forecastToShow.forEach(dayData => {
+            const date = new Date(dayData.time);
+            date.setDate(date.getDate() + 1); // Add one day - TEMPORARY FIX: Consider proper timezone handling
+            const weatherCode = dayData.weather_code;
+            const tempMax = dayData.temperature_2m_max;
+            const tempMin = dayData.temperature_2m_min;
+            const sunrise = dayData.sunrise;
+            const sunset = dayData.sunset;
+            const precipitationSum = dayData.precipitation_sum;
+            const windSpeedMax = dayData.wind_speed_10m_max;
+
+            const dailyItem = document.createElement('div');
+            dailyItem.classList.add('seven-day-item');
+            // No need to add dark-mode class here anymore since it's the default
+            dailyItem.innerHTML = `
+                <p><strong>${date.toLocaleDateString()}</strong></p>
+                <p>Weather: ${getWeatherCondition(weatherCode)}</p>
+                <p>High: ${tempMax}°F</p>
+                <p>Low: ${tempMin}°F</p>
+                <p>Sunrise: ${new Date(sunrise).toLocaleTimeString()}</p>
+                <p>Sunset: ${new Date(sunset).toLocaleTimeString()}</p>
+                <p>Precipitation: ${precipitationSum} in</p>
+                <p>Max Wind Speed: ${windSpeedMax} mph</p>
+            `;
+            sevenDayForecastDiv.appendChild(dailyItem);
+        });
+    }
 }
 
 // Event listener for location change
@@ -137,6 +229,7 @@ locationSelect.addEventListener('change', () => {
     const selectedLocation = locationSelect.value;
     const { latitude, longitude } = locations[selectedLocation];
     getWeatherData(latitude, longitude);
+    getCurrentWeather(latitude, longitude); // Fetch current weather on location change
 });
 
 // Event listener for the toggle button
@@ -163,6 +256,7 @@ currentLocationButton.addEventListener('click', () => {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
                 getWeatherData(latitude, longitude);
+                getCurrentWeather(latitude, longitude); // Fetch current weather on current location
             },
             error => {
                 let errorMessage = "Unable to retrieve your location.";
@@ -185,35 +279,10 @@ currentLocationButton.addEventListener('click', () => {
     }
 });
 
-// Function to toggle dark mode
-function toggleDarkMode() {
-    body.classList.toggle('dark-mode');
-    toggleText.textContent = body.classList.contains('dark-mode') ? 'Dark Mode' : 'Light Mode';
-    actionButtons.forEach(button => button.classList.toggle('dark-mode'));
-    locationDropdown.classList.toggle('dark-mode');
-    const sevenDayItems = document.querySelectorAll('.seven-day-item');
-    sevenDayItems.forEach(item => item.classList.toggle('dark-mode', body.classList.contains('dark-mode')));
-    if (weatherDataSection) {
-        weatherDataSection.classList.toggle('dark-mode');
-    }
-    if (sevenDayForecastSection.style.display === 'block' && currentWeatherData && currentWeatherData.daily) {
-        displaySevenDayForecast(currentWeatherData.daily);
-    }
-    localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-}
-
-// Event listener for dark mode toggle
-darkModeToggle.addEventListener('change', toggleDarkMode);
-
-// Check for saved dark mode preference on page load
-if (localStorage.getItem('darkMode') === 'true') {
-    darkModeToggle.checked = true;
-    toggleDarkMode();
-}
-
 // Initial load - fetch data for the default location
 const initialLocationData = locations[defaultLocation];
 getWeatherData(initialLocationData.latitude, initialLocationData.longitude);
+getCurrentWeather(initialLocationData.latitude, initialLocationData.longitude); // Fetch current weather on initial load
 
 // Set the default selected option in the dropdown
 locationSelect.value = defaultLocation;

@@ -6,13 +6,10 @@
     <title>Disc Golf Weather Genie</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="toggle-container">
-        <label class="switch">
-            <input type="checkbox" id="dark-mode-toggle">
-            <span class="slider round"></span>
-        </label>
-        <span class="toggle-text">Light Mode</span>
+<body class="dark-mode"> <!-- Add the dark-mode class to the body -->
+    <div id="current-conditions-box">
+        <!-- Current conditions will be displayed here -->
+        <p>Loading current weather...</p>
     </div>
 
     <h1>Disc Golf Weather Genie</h1>
@@ -34,12 +31,12 @@
 
     <div id="current-forecast">
         <h2>Today's Forecast</h2>
-        <div id="current-day-data" class="seven-day-item">
+        <div id="current-day-data" class="seven-day-item dark-mode"> <!-- Add dark-mode class -->
             <!-- Current day's data will be displayed here -->
         </div>
     </div>
 
-    <div id="seven-day-forecast" style="display: none;">
+    <div id="seven-day-forecast"> <!-- Remove style="display: none;" -->
         <h2>7-Day Forecast</h2>
         <div id="seven-day-data">
             <!-- 7-day data will be displayed here -->
