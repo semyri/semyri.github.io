@@ -139,3 +139,21 @@ h1, h2 {
         align-items: flex-start; /* Align items to the start in column layout */
     }
 }
+
+#genie-advice {
+    background-color: rgba(100, 60, 180, 0.7); /* A mystical purple background */
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-style: italic;
+    font-size: 1.2em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#genie-advice::before {
+    content: '🧞‍♂️ '; /* Add a genie emoji */
+    font-size: 1.5em;
+    margin-right: 10px;
+}

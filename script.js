@@ -10,6 +10,7 @@ const actionButtons = document.querySelectorAll('.action-button');
 const locationDropdown = document.getElementById('location-select');
 const weatherDataSection = document.getElementById('weather-data');
 const currentConditionsBox = document.getElementById('current-conditions-box');
+const genieAdviceDiv = document.getElementById('genie-advice');
 
 const locations = {
     venus: { latitude: 32.4335, longitude: -97.1025 },
@@ -19,10 +20,50 @@ const locations = {
 };
 
 const apiUrlBase = 'https://api.open-meteo.com/v1/forecast';
-const currentConditionsApiUrlBase = 'https://api.open-meteo.com/v1/forecast'; // Same base URL
+const currentConditionsApiUrlBase = 'https://api.open-meteo.com/v1/forecast';
 const defaultLocation = 'venus';
 
 let currentWeatherData = null;
+
+// **IMPORTANT:** Replace with your actual Google AI Studio API key
+const GOOGLE_API_KEY = 'AIzaSyDldwzqsJt8qWTSBY5TyYFMekmrP5BrhUA';
+
+async function getGenieDiscGolfAdvice(currentWeather) {
+    const temperature = currentWeather.temperature;
+    const windSpeed = currentWeather.windspeed;
+    const condition = getWeatherCondition(currentWeather.weathercode);
+
+    const prompt = `The current weather conditions are: Temperature: ${temperature}°F, Wind Speed: ${windSpeed} mph, and the sky is ${condition}. As a wise and whimsical genie, tell me if it's a good time to go play disc golf, and give me a short, encouraging (or discouraging) response.`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error from Google AI Studio API:', errorData);
+            genieAdviceDiv.textContent = "Hmm, my magic is a bit cloudy at the moment. Try again later!";
+            return;
+        }
+
+        const data = await response.json();
+        const genieResponse = data.candidates[0].content.parts[0].text;
+        genieAdviceDiv.textContent = genieResponse;
+
+    } catch (error) {
+        console.error('Error communicating with Google AI Studio:', error);
+        genieAdviceDiv.textContent = "The genie's connection is lost! Perhaps the weather is interfering with the magic.";
+    }
+}
 
 function getCurrentWeather(latitude, longitude) {
     const params = new URLSearchParams({
@@ -44,11 +85,35 @@ function getCurrentWeather(latitude, longitude) {
         })
         .then(data => {
             displayCurrentConditions(data.current_weather);
+            // Call the genie advice function after fetching current weather
+            getGenieDiscGolfAdvice(data.current_weather);
         })
         .catch(error => {
             console.error('Error fetching current weather data:', error);
             currentConditionsBox.innerHTML = '<p>Failed to fetch current weather.</p>';
+            genieAdviceDiv.textContent = "";
         });
+}
+
+function getWeatherCondition(code) {
+    switch (code) {
+        case 0: return "Clear sky";
+        case 1: return "Mainly clear";
+        case 2: return "Partly cloudy";
+        case 3: return "Overcast";
+        case 45: case 48: return "Fog";
+        case 51: case 53: case 55: return "Drizzle";
+        case 56: case 57: return "Freezing Drizzle";
+        case 61: case 63: case 65: return "Rain";
+        case 66: case 67: return "Freezing Rain";
+        case 71: case 73: case 75: return "Snow fall";
+        case 77: return "Snow grains";
+        case 80: case 81: case 82: return "Rain showers";
+        case 85: case 86: return "Snow showers";
+        case 95: return "Thunderstorm";
+        case 96: case 99: return "Thunderstorm with hail";
+        default: return "Unknown";
+    }
 }
 
 function displayCurrentConditions(currentWeather) {
@@ -115,28 +180,8 @@ function getWeatherData(latitude, longitude) {
             currentDayDataDiv.innerHTML = '<p>Failed to fetch weather data.</p>';
             sevenDayForecastDiv.innerHTML = '';
             currentConditionsBox.innerHTML = '<p>Failed to fetch weather data.</p>';
+            genieAdviceDiv.textContent = "";
         });
-}
-
-function getWeatherCondition(code) {
-    switch (code) {
-        case 0: return "Clear sky";
-        case 1: return "Mainly clear";
-        case 2: return "Partly cloudy";
-        case 3: return "Overcast";
-        case 45: case 48: return "Fog";
-        case 51: case 53: case 55: return "Drizzle";
-        case 56: case 57: return "Freezing Drizzle";
-        case 61: case 63: case 65: return "Rain";
-        case 66: case 67: return "Freezing Rain";
-        case 71: case 73: case 75: return "Snow fall";
-        case 77: return "Snow grains";
-        case 80: case 81: case 82: return "Rain showers";
-        case 85: case 86: return "Snow showers";
-        case 95: return "Thunderstorm";
-        case 96: case 99: return "Thunderstorm with hail";
-        default: return "Unknown";
-    }
 }
 
 function displayCurrentDayForecast(dailyData, index) {
