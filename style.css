@@ -42,6 +42,7 @@ h1, h2 {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    justify-content: center; /* Center the buttons */
 }
 
 .action-button {
@@ -58,39 +59,60 @@ h1, h2 {
     background-color: #0088cc; /* Dark mode button hover color */
 }
 
-.location-select-container {
+.search-location-container {
     text-align: center;
     margin-bottom: 20px;
     background-color: rgba(40, 40, 40, 0.6); /* Dark mode background */
     color: #f8f8f2;
     padding: 10px;
     border-radius: 5px;
-    display: inline-block;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For positioning the suggestions */
 }
 
-.location-select-container label {
-    background-color: rgba(40, 40, 40, 0.8); /* Dark mode background */
+.search-location-container label {
     color: #f8f8f2;
-    padding: 5px;
-    border-radius: 3px;
 }
 
-#location-select {
+#city-search {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #555; /* Dark mode border color */
-    width: 80%;
+    width: 60%; /* Adjust width as needed */
     max-width: 300px;
-    margin: 5px auto;
-    display: block;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     background-color: #333; /* Dark mode background */
     color: #f8f8f2; /* Dark mode text color */
 }
 
-#location-select option {
+#city-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     background-color: #333; /* Dark mode background */
-    color: #f8f8f2; /* Dark mode text color */
+    color: #f8f8f2;
+    border: 1px solid #555;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 10; /* Ensure it's above other content */
+    display: none; /* Hidden by default */
+    overflow-y: auto; /* For long lists */
+    max-height: 200px; /* Adjust as needed */
+    text-align: left; /* Align suggestion text to the left */
+}
+
+#city-suggestions div {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#city-suggestions div:hover {
+    background-color: #555;
 }
 
 #weather-data {
@@ -131,12 +153,12 @@ h1, h2 {
     body {
         margin: 10px;
     }
-    #location-select {
+    #city-search {
         width: 95%;
     }
     .controls-container {
         flex-direction: column;
-        align-items: flex-start; /* Align items to the start in column layout */
+        align-items: stretch; /* Align items to the start in column layout */
     }
 }
 

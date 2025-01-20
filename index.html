@@ -20,17 +20,17 @@
 
     <div class="controls-container">
         <button id="current-location-button" class="action-button">Use Current Location</button>
-        <button id="toggle-forecast" class="action-button">Show 7-Day Forecast</button>
     </div>
 
-    <div class="location-select-container">
-        <label for="location-select">Choose a Saved Location:</label>
-        <select id="location-select">
-            <option value="venus">Venus</option>
-            <option value="dallas">Dallas</option>
-            <option value="waco">Waco</option>
-            <option value="fort-worth">Fort Worth</option>
-        </select>
+    <div class="search-location-container">
+        <label for="city-search">Search for a city:</label>
+        <input type="text" id="city-search" placeholder="Enter city name">
+        <button id="search-button" class="action-button">Search</button>
+        <div id="city-suggestions"></div>
+    </div>
+
+    <div class="controls-container">
+        <button id="toggle-forecast" class="action-button">Show 7-Day Forecast</button>
     </div>
 
     <div id="current-forecast">
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <div id="seven-day-forecast">
+    <div id="seven-day-forecast" style="display: none;">
         <h2>7-Day Forecast</h2>
         <div id="seven-day-data">
             <!-- 7-day data will be displayed here -->
