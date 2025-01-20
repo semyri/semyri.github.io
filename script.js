@@ -118,7 +118,7 @@ async function getGenieDiscGolfAdvice(currentWeather) {
     const windSpeed = currentWeather.windspeed;
     const condition = getWeatherCondition(currentWeather.weathercode);
 
-    const prompt = `The current weather conditions are: Temperature: ${temperature}°F, Wind Speed: ${windSpeed} mph, and the sky is ${condition}. As a dim witted sarcastic and whimsical genie, tell me if it's a good time to go play disc golf, and give me a short, judgmental response.`;
+    const prompt = `The current weather conditions are: Temperature: ${temperature}°F, Wind Speed: ${windSpeed} mph, and the sky is ${condition}. As a wise and whimsical genie, tell me if it's a good time to go play disc golf, and give me a short, encouraging (or discouraging) response.`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
@@ -239,7 +239,7 @@ function getWeatherData(latitude, longitude) {
             currentWeatherData = data;
             displayCurrentDayForecast(data.daily); // Display today's forecast
             displaySevenDayForecast(data.daily); // Display the 7-day forecast
-            getCurrentWeather(latitude, longitude); // Fetch current weather after daily forecast
+            // **REMOVED THIS LINE:** getCurrentWeather(latitude, longitude); // Fetch current weather after daily forecast
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);

@@ -1,90 +1,112 @@
 body {
     font-family: sans-serif;
-    margin: 20px;
-    background-color: #1e1e1e; /* Default to dark background */
-    color: #f8f8f2; /* Default to light text */
+    margin: 0;
+    background-color: #f2fff3; /* Solid Dark Purple Background (adjust hex code as needed) */
+    color: #ffffff;
     transition: background-color 0.3s ease, color 0.3s ease;
-    background-image: url('disc genie.png');
+    /* Removed the background image */
+    /* background-image: url('disc genie.png'); */
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 80%;
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 20px;
 }
 
 #current-conditions-box {
-    background-color: rgba(51, 51, 51, 0.8);
-    color: #f8f8f2;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
+    background-color: #9cdff7; /* Blueish*/
+    color: #162d36; /* Dark Blue */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Keep the shadow, adjust if needed */
     margin-bottom: 20px;
     text-align: center;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #current-conditions-box p {
-    margin: 5px 0;
+    margin: 10px 0;
+    font-size: 1.1em;
 }
 
 #current-conditions-box strong {
     font-weight: bold;
+    color: #000000; /* Solid Black Highlight */
 }
 
 h1, h2 {
     text-align: center;
-    margin-bottom: 20px;
-    background-color: rgba(40, 40, 40, 0.8);
-    color: #f8f8f2;
-    padding: 5px 10px;
-    border-radius: 5px;
+    margin-bottom: 25px;
+    background-color: #aa94f7; /* Purple */
+    color: #000000; /* Black */
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-top: 0;
 }
 
 .controls-container {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center; /* Center the buttons */
+    gap: 15px;
+    margin-bottom: 25px;
+    justify-content: center;
 }
 
 .action-button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     border: none;
-    border-radius: 5px;
-    background-color: #00aaff; /* Dark mode button color */
-    color: #1e1e1e; /* Dark mode button text color */
+    border-radius: 8px;
+    background-color: #f29179; /* Solid Green Button */
+    color: #000000; /* Solid Black Text */
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    font-size: 1em;
 }
 
 .action-button:hover {
-    background-color: #0088cc; /* Dark mode button hover color */
+    background-color: #c4401f; /* Darker Green on Hover */
+    transform: scale(1.05);
 }
 
 .search-location-container {
     text-align: center;
-    margin-bottom: 20px;
-    background-color: rgba(40, 40, 40, 0.6); /* Dark mode background */
-    color: #f8f8f2;
-    padding: 10px;
-    border-radius: 5px;
+    margin-bottom: 25px;
+    background-color: #fbfca2; /* Dark Gray for Search Container */
+    color: #ffffff; /* Solid White Text */
+    padding: 15px;
+    border-radius: 10px;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
     justify-content: center;
-    position: relative; /* For positioning the suggestions */
+    position: relative;
 }
 
 .search-location-container label {
-    color: #f8f8f2;
+    color: #000000;
+    font-size: 1.1em;
 }
 
 #city-search {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #555; /* Dark mode border color */
-    width: 60%; /* Adjust width as needed */
-    max-width: 300px;
-    background-color: #333; /* Dark mode background */
-    color: #f8f8f2; /* Dark mode text color */
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #555555; /* Darker Gray Border */
+    width: 60%;
+    max-width: 350px;
+    background-color: #000000; /* Solid Black Input */
+    color: #ffffff; /* Solid White Text */
+    font-size: 1em;
 }
 
 #city-suggestions {
@@ -92,90 +114,99 @@ h1, h2 {
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #333; /* Dark mode background */
-    color: #f8f8f2;
-    border: 1px solid #555;
+    background-color: #555555; /* Darker Gray Suggestions */
+    color: #ffffff;
+    border: 1px solid #777777;
     border-top: none;
-    border-radius: 0 0 5px 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    z-index: 10; /* Ensure it's above other content */
-    display: none; /* Hidden by default */
-    overflow-y: auto; /* For long lists */
-    max-height: 200px; /* Adjust as needed */
-    text-align: left; /* Align suggestion text to the left */
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Keep the shadow */
+    z-index: 10;
+    display: none;
+    overflow-y: auto;
+    max-height: 200px;
+    text-align: left;
 }
 
 #city-suggestions div {
-    padding: 10px;
+    padding: 12px;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 #city-suggestions div:hover {
-    background-color: #555;
+    background-color: #777777; /* Lighter Gray on Hover */
 }
 
 #weather-data {
     margin-top: 20px;
-    background-color: rgba(51, 51, 51, 0.8); /* Dark mode background */
-    color: #f8f8f2; /* Dark mode text color */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
+    background-color: #000000; /* Solid Black Background */
+    color: #ffffff; /* Solid White Text */
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Keep the shadow */
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #hourly-forecast, #daily-forecast {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .seven-day-item {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #666; /* Dark mode border color */
-    border-radius: 4px;
-    background-color: rgba(68, 68, 68, 0.7); /* Dark mode background */
-    color: #f8f8f2; /* Dark mode text color */
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 0px solid #000000; /* Solid Red Border */
+    border-radius: 8px;
+    background-color: #1a1a1a; /* Darker Gray for Forecast Items */
+    color: #ffffff;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .seven-day-item p {
-    background-color: rgba(80, 80, 80, 0.6); /* Dark mode background */
-    color: #f8f8f2; /* Dark mode text color */
-    padding: 3px 5px;
-    border-radius: 3px;
+    background-color: #f067a2; /* Solid Pink for P Tags */
+    color: #000000; /* Solid Black Text */
+    padding: 5px 8px;
+    border-radius: 5px;
     display: inline-block;
-    margin: 0;
+    margin: 5px 5px 0 0;
+    font-size: 0.95em;
 }
 
-/* Make it more responsive for smaller screens */
-@media (max-width: 600px) {
-    body {
-        margin: 10px;
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
     }
     #city-search {
-        width: 95%;
+        width: 90%;
     }
     .controls-container {
         flex-direction: column;
-        align-items: stretch; /* Align items to the start in column layout */
+        align-items: stretch;
+    }
+    .action-button {
+        padding: 10px;
+    }
+    .search-location-container {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
 #genie-advice {
-    background-color: rgba(100, 60, 180, 0.7); /* A mystical purple background */
-    color: #fff;
-    padding: 20px;
-    border-radius: 10px;
+    background-color: #b4edc6; /* Solid Red Background */
+    color: #000000; /* Solid Black Text */
+    padding: 25px;
+    border-radius: 12px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     font-style: italic;
-    font-size: 1.2em;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-size: 1.3em;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
 }
 
 #genie-advice::before {
-    content: '🧞‍♂️ '; /* Add a genie emoji */
-    font-size: 1.5em;
-    margin-right: 10px;
+    content: '🧞‍♂️ ';
+    font-size: 1.6em;
+    margin-right: 15px;
 }
