@@ -15,15 +15,74 @@ const citySuggestionsDiv = document.getElementById('city-suggestions');
 // **IMPORTANT:** Replace with your actual OpenCage Geocoder API key
 const OPENCAGE_API_KEY = '180a538889bf4c41b40f9be07d04bbf5';
 
-// **IMPORTANT:** Replace with your actual Google AI Studio API key
-const GOOGLE_API_KEY = 'AIzaSyDldwzqsJt8qWTSBY5TyYFMekmrP5BrhUA';
-
 const apiUrlBase = 'https://api.open-meteo.com/v1/forecast';
 const currentConditionsApiUrlBase = 'https://api.open-meteo.com/v1/forecast';
 const defaultLatitude = 32.4335; // Venus, TX latitude as default
 const defaultLongitude = -97.1025; // Venus, TX longitude as default
 
 let currentWeatherData = null;
+
+const genieAdviceResponses = [
+    // General good weather
+    "Looks like a great day to be outside!",
+    "Enjoy the pleasant weather!",
+    "Perfect conditions for some fun.",
+    "Make the most of this beautiful day.",
+    "Weather's on your side today!",
+    "Step outside and soak it up!",
+    "What a lovely day it is.",
+    "The weather is simply delightful.",
+    "Embrace the day's beauty.",
+    "A perfect day for outdoor adventures.",
+
+    // Hot weather
+    "Stay hydrated and find some shade!",
+    "It's a scorcher, take it easy out there.",
+    "Cool drinks are your best friend today.",
+    "Might be a good day for indoor activities.",
+    "Keep cool and carry on!",
+    "Sunscreen is a must!",
+    "Time for a dip in the pool!",
+    "Find a way to beat the heat.",
+    "The sun is strong today, be careful.",
+    "Hydration is key in this heat.",
+
+    // Cold weather
+    "Bundle up, it's chilly out there!",
+    "Brrr, stay warm and cozy.",
+    "Perfect weather for a warm drink.",
+    "Time to light a fire!",
+    "Keep those layers on!",
+    "Don't forget your hat and gloves.",
+    "Embrace the cold with warm gear.",
+    "A good day to stay indoors and relax.",
+    "The cold is here, be prepared.",
+    "Wrap up tight against the chill.",
+
+    // Windy weather
+    "Hold onto your hat, it's breezy!",
+    "Careful with that kite!",
+    "A bit blustery today, be mindful.",
+    "The wind is picking up!",
+    "Consider indoor activities if you're sensitive to wind.",
+    "It's a windy one!",
+    "Brace yourself for the gusts.",
+    "The wind might make things interesting today.",
+    "Keep an eye on things that might blow away.",
+    "A good day for flying a kite (if you're careful!).",
+
+    // Rainy weather
+    "Don't forget your umbrella!",
+    "Looks like it's going to be a wet one.",
+    "Perfect weather for staying in with a good book.",
+    "Time to cozy up indoors.",
+    "The rain is here, be prepared.",
+    "Grab your rain boots!",
+    "Embrace the cozy sound of rain.",
+    "A good day for indoor hobbies.",
+    "Stay dry out there!",
+    "The rain is falling, take it easy if you're out.",
+];
 
 // Helper function for debouncing
 function debounce(func, delay) {
@@ -113,41 +172,60 @@ searchButton.addEventListener('click', async () => {
     }
 });
 
-async function getGenieDiscGolfAdvice(currentWeather) {
+function displayGenieAdvice(currentWeather) {
     const temperature = currentWeather.temperature;
     const windSpeed = currentWeather.windspeed;
-    const condition = getWeatherCondition(currentWeather.weathercode);
+    const weatherCode = currentWeather.weathercode;
 
-    const prompt = `The current weather conditions are: Temperature: ${temperature}°F, Wind Speed: ${windSpeed} mph, and the sky is ${condition}. As a wise and whimsical genie, tell me if it's a good time to go play disc golf, and give me a short, encouraging (or discouraging) response.`;
+    let applicableAdvice = [];
+    let addedSpecificAdvice = false; // Flag to track if specific advice was added
 
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Error from Google AI Studio API:', errorData);
-            genieAdviceDiv.textContent = "Hmm, my magic is a bit cloudy at the moment. Try again later!";
-            return;
-        }
-
-        const data = await response.json();
-        const genieResponse = data.candidates[0].content.parts[0].text;
-        genieAdviceDiv.textContent = genieResponse;
-
-    } catch (error) {
-        console.error('Error communicating with Google AI Studio:', error);
-        genieAdviceDiv.textContent = "The genie's connection is lost! Perhaps the weather is interfering with the magic.";
+    // Add advice based on specific conditions
+    if (temperature > 80) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice => advice.includes("hydrated") || advice.includes("scorcher") || advice.includes("heat") || advice.includes("sun")));
+        addedSpecificAdvice = true;
     }
+
+    if (temperature < 50) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice => advice.includes("bundle") || advice.includes("chilly") || advice.includes("cold") || advice.includes("warm")));
+        addedSpecificAdvice = true;
+    }
+
+    if (windSpeed > 20) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice => advice.includes("wind") || advice.includes("breezy") || advice.includes("blustery") || advice.includes("gusts")));
+        addedSpecificAdvice = true;
+    }
+
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(weatherCode)) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice => advice.includes("umbrella") || advice.includes("wet") || advice.includes("rain")));
+        addedSpecificAdvice = true;
+    }
+
+    if ([71, 73, 75, 77, 85, 86].includes(weatherCode)) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice => advice.includes("snow") || advice.includes("cold") || advice.includes("warm")));
+        addedSpecificAdvice = true;
+    }
+
+    if ([95, 96, 99].includes(weatherCode)) {
+        applicableAdvice.push("Stay safe indoors, there's a thunderstorm!");
+        addedSpecificAdvice = true;
+    }
+
+    // Add general "good weather" advice only if no specific advice was added
+    if (!addedSpecificAdvice) {
+        applicableAdvice.push(...genieAdviceResponses.filter(advice =>
+            advice.includes("great day") || advice.includes("pleasant") || advice.includes("perfect") || advice.includes("beautiful")
+        ));
+    }
+
+    // Select a random advice message
+    let adviceToDisplay = "Enjoy your day!"; // Default message
+    if (applicableAdvice.length > 0) {
+        const randomIndex = Math.floor(Math.random() * applicableAdvice.length);
+        adviceToDisplay = applicableAdvice[randomIndex];
+    }
+
+    genieAdviceDiv.textContent = adviceToDisplay;
 }
 
 function getCurrentWeather(latitude, longitude) {
@@ -171,7 +249,7 @@ function getCurrentWeather(latitude, longitude) {
         .then(data => {
             displayCurrentConditions(data.current_weather);
             // Call the genie advice function after fetching current weather
-            getGenieDiscGolfAdvice(data.current_weather);
+            displayGenieAdvice(data.current_weather);
         })
         .catch(error => {
             console.error('Error fetching current weather data:', error);
