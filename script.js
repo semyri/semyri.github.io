@@ -259,36 +259,100 @@ function getCurrentWeather(latitude, longitude) {
 }
 
 function getWeatherCondition(code) {
+    let conditionText = "";
+    let conditionEmoji = "";
+
     switch (code) {
-        case 0: return "Clear sky";
-        case 1: return "Mainly clear";
-        case 2: return "Partly cloudy";
-        case 3: return "Overcast";
-        case 45: case 48: return "Fog";
-        case 51: case 53: case 55: return "Drizzle";
-        case 56: case 57: return "Freezing Drizzle";
-        case 61: case 63: case 65: return "Rain";
-        case 66: case 67: return "Freezing Rain";
-        case 71: case 73: case 75: return "Snow fall";
-        case 77: return "Snow grains";
-        case 80: case 81: case 82: return "Rain showers";
-        case 85: case 86: return "Snow showers";
-        case 95: return "Thunderstorm";
-        case 96: case 99: return "Thunderstorm with hail";
-        default: return "Unknown";
+        case 0:
+            conditionText = "Clear sky";
+            conditionEmoji = "☀️"; // Sun
+            break;
+        case 1:
+            conditionText = "Mainly clear";
+            conditionEmoji = "🌤️"; // Sun behind small cloud
+            break;
+        case 2:
+            conditionText = "Partly cloudy";
+            conditionEmoji = "⛅"; // Sun behind cloud
+            break;
+        case 3:
+            conditionText = "Overcast";
+            conditionEmoji = "☁️"; // Cloud
+            break;
+        case 45:
+        case 48:
+            conditionText = "Fog";
+            conditionEmoji = "🌫️"; // Fog
+            break;
+        case 51:
+        case 53:
+        case 55:
+            conditionText = "Drizzle";
+            conditionEmoji = " drizzle 🌧️"; // Cloud with rain - added "drizzle" to text as emoji might not be enough context
+            break;
+        case 56:
+        case 57:
+            conditionText = "Freezing Drizzle";
+            conditionEmoji = " freezing drizzle 🧊🌧️"; // Ice and Cloud with rain
+            break;
+        case 61:
+        case 63:
+        case 65:
+            conditionText = "Rain";
+            conditionEmoji = " ☔"; // Umbrella
+            break;
+        case 66:
+        case 67:
+            conditionText = "Freezing Rain";
+            conditionEmoji = " freezing rain 🧊☔"; // Ice and Umbrella
+            break;
+        case 71:
+        case 73:
+        case 75:
+            conditionText = "Snow fall";
+            conditionEmoji = " ❄️"; // Snowflake
+            break;
+        case 77:
+            conditionText = "Snow grains";
+            conditionEmoji = " 🌨️"; // Cloud with snow
+            break;
+        case 80:
+        case 81:
+        case 82:
+            conditionText = "Rain showers";
+            conditionEmoji = " 🌦️"; // Sun behind rain cloud
+            break;
+        case 85:
+        case 86:
+            conditionText = "Snow showers";
+            conditionEmoji = " 🌨️"; // Cloud with snow
+            break;
+        case 95:
+            conditionText = "Thunderstorm";
+            conditionEmoji = " ⛈️"; // Cloud with lightning and rain
+            break;
+        case 96:
+        case 99:
+            conditionText = "Thunderstorm with hail";
+            conditionEmoji = " thunderstorm with hail ⛈️🧊"; // Cloud with lightning and rain and Ice
+            break;
+        default:
+            conditionText = "Unknown";
+            conditionEmoji = "❓"; // Question mark
     }
+    return { text: conditionText, emoji: conditionEmoji };
 }
 
 function displayCurrentConditions(currentWeather) {
     const temperature = currentWeather.temperature;
     const windSpeed = currentWeather.windspeed;
     const weatherCode = currentWeather.weathercode;
-    const condition = getWeatherCondition(weatherCode);
+    const condition = getWeatherCondition(weatherCode); // Get the object with text and emoji
 
     currentConditionsBox.innerHTML = `
         <p><strong>Current Conditions:</strong></p>
         <p>Temperature: ${temperature}°F</p>
-        <p>Weather: ${condition}</p>
+        <p>Weather: ${condition.text} ${condition.emoji}</p>
         <p>Wind Speed: ${windSpeed} mph</p>
     `;
 }
@@ -337,7 +401,7 @@ function displayCurrentDayForecast(dailyData) {
 
     const today = new Date();
     const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // Month is 0-indexed
+    const currentMonth = today.getMonth();
     const currentDate = today.getDate();
 
     const todayDataIndex = dailyData.time.findIndex(apiDateString => {
@@ -359,13 +423,15 @@ function displayCurrentDayForecast(dailyData) {
         const precipitationSum = dailyData.precipitation_sum[todayDataIndex];
         const windSpeedMax = dailyData.wind_speed_10m_max[todayDataIndex];
 
+        const condition = getWeatherCondition(weatherCode); // Get the object with text and emoji
+
         const forecastHTML = `
             <p><strong>${date.toLocaleDateString()}</strong></p>
-            <p>Weather: ${getWeatherCondition(weatherCode)}</p>
+            <p>Weather: ${condition.text} ${condition.emoji}</p>
             <p>High: ${tempMax}°F</p>
             <p>Low: ${tempMin}°F</p>
-            <p>Sunrise: ${new Date(sunrise).toLocaleTimeString()}</p>
-            <p>Sunset: ${new Date(sunset).toLocaleTimeString()}</p>
+            <p>Sunrise: ${new Date(sunrise).toLocaleTimeString()} </p>
+            <p>Sunset: ${new Date(sunset).toLocaleTimeString()} </p>
             <p>Precipitation: ${precipitationSum} in</p>
             <p>Max Wind Speed: ${windSpeedMax} mph</p>
         `;
@@ -411,11 +477,13 @@ function displaySevenDayForecast(dailyData) {
         const precipitationSum = dailyData.precipitation_sum[i];
         const windSpeedMax = dailyData.wind_speed_10m_max[i];
 
+        const condition = getWeatherCondition(weatherCode);
+
         const dailyItem = document.createElement('div');
         dailyItem.classList.add('seven-day-item');
         dailyItem.innerHTML = `
             <p><strong>${date.toLocaleDateString()}</strong></p>
-            <p>Weather: ${getWeatherCondition(weatherCode)}</p>
+            <p>Weather: ${condition.text} ${condition.emoji}</p>
             <p>High: ${tempMax}°F</p>
             <p>Low: ${tempMin}°F</p>
             <p>Sunrise: ${new Date(sunrise).toLocaleTimeString()} </p>
