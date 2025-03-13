@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bug Tracker</title>
+    <title>Buggi</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -108,7 +108,7 @@
         }
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start; /* Adjusted since Logout is no longer here */
             align-items: flex-start;
             margin-bottom: 20px;
         }
@@ -122,7 +122,7 @@
             cursor: pointer;
         }
         button:active {
-            background-color: #ddd; /* Touch feedback */
+            background-color: #ddd;
         }
         label {
             display: block;
@@ -145,6 +145,16 @@
         }
         #addLinkButton {
             width: auto;
+        }
+        /* Bug Tracker Container */
+        #bugTrackerContainer {
+            position: relative; /* Allows absolute positioning of children */
+            min-height: 100vh; /* Ensures container takes full viewport height */
+        }
+        #logoutButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
         }
 
         /* Responsive Styles */
@@ -170,17 +180,22 @@
             #addLinkButton {
                 width: auto;
             }
+            #logoutButton {
+                position: static; /* Reverts to flow on tablet */
+                width: 100%;
+                margin-top: 20px;
+            }
         }
 
         @media (max-width: 600px) {
             /* Phone adjustments */
             #bugTable {
                 display: block;
-                overflow-x: auto; /* Horizontal scrolling for table */
-                white-space: nowrap; /* Prevent wrapping */
+                overflow-x: auto;
+                white-space: nowrap;
             }
             th, td {
-                min-width: 100px; /* Ensure columns are readable */
+                min-width: 100px;
                 padding: 6px;
                 font-size: 14px;
             }
@@ -201,6 +216,11 @@
             }
             #addLinkButton {
                 width: 100%;
+            }
+            #logoutButton {
+                position: static; /* Reverts to flow on phone */
+                width: 100%;
+                margin-top: 20px;
             }
         }
     </style>
@@ -239,10 +259,9 @@
         <div id="bugTrackerContainer" class="hidden">
             <div class="header">
                 <div class="title-container">
-                    <h2>Bug Tracker</h2>
+                    <h2>Buggi</h2>
                     <button id="addBugButton">Add Bug</button>
                 </div>
-                <button id="logoutButton">Logout</button>
             </div>
             <table id="bugTable">
                 <thead>
@@ -257,6 +276,7 @@
                 </thead>
                 <tbody id="bugTableBody"></tbody>
             </table>
+            <button id="logoutButton">Logout</button>
         </div>
 
         <!-- Modal Backdrop -->
