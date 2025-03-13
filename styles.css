@@ -1,0 +1,95 @@
+/* styles.css */
+:root {
+    --bg-color: white;
+    --fg-color: black;
+    --menu-bg: lightgray;
+    --menu-fg: black;
+    --tree-bg: white;
+    --tree-fg: black;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 10px;
+}
+
+.controls {
+    margin-bottom: 10px;
+}
+
+#bugTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--tree-bg);
+    color: var(--tree-fg);
+}
+
+#bugTable th, #bugTable td {
+    border: 1px solid var(--fg-color);
+    padding: 8px;
+    text-align: left;
+}
+
+#bugTable th {
+    background-color: var(--menu-bg);
+    color: var(--menu-fg);
+    cursor: pointer;
+}
+
+tr.status-new {
+    background-color: green;
+    color: white;
+}
+
+tr.status-needs-work {
+    background-color: pink;
+}
+
+tr.status-solved {
+    background-color: blue;
+    color: white;
+}
+
+tr.priority-high {
+    font-weight: bold;
+}
+
+tr.selected {
+    background-color: #ddd;
+}
+
+dialog {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    border: 1px solid var(--fg-color);
+    width: 80%;
+    max-width: 800px;
+}
+
+label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+input, textarea, select {
+    width: 300px;
+    margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+textarea {
+    height: 100px;
+    vertical-align: top;
+}
+
+#existingAttachments div {
+    margin: 5px 0;
+}
+
+button {
+    padding: 5px 10px;
+}
