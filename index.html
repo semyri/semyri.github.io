@@ -122,7 +122,7 @@
             cursor: pointer;
         }
         button:active {
-            background-color: #ddd;
+            background-color: #ddd; /* Touch feedback */
         }
         label {
             display: block;
@@ -133,7 +133,7 @@
             box-sizing: border-box;
             margin-bottom: 10px;
         }
-        /* New styles for attachment row */
+        /* Attachment row styles */
         .attachment-row {
             display: flex;
             align-items: center;
@@ -141,10 +141,10 @@
             margin-bottom: 10px;
         }
         #linkInput {
-            flex-grow: 1; /* Takes up available space */
+            flex-grow: 1;
         }
         #addLinkButton {
-            width: auto; /* Prevents full-width styling */
+            width: auto;
         }
 
         /* Responsive Styles */
@@ -175,36 +175,13 @@
         @media (max-width: 600px) {
             /* Phone adjustments */
             #bugTable {
-                border: 0;
-            }
-            #bugTable thead {
-                display: none;
-            }
-            #bugTable tbody tr {
                 display: block;
-                margin-bottom: 15px;
-                border: 1px solid #ddd;
-                padding: 10px;
-                background-color: #fff;
-            }
-            #bugTable tbody td {
-                display: block;
-                border: none;
-                padding: 5px 0;
-                text-align: left;
-                position: relative;
-            }
-            #bugTable tbody td:before {
-                content: attr(data-label);
-                font-weight: bold;
-                display: inline-block;
-                width: 100px;
-                margin-right: 10px;
-            }
-            #bugTable tbody td:last-child {
-                text-align: center;
+                overflow-x: auto; /* Horizontal scrolling for table */
+                white-space: nowrap; /* Prevent wrapping */
             }
             th, td {
+                min-width: 100px; /* Ensure columns are readable */
+                padding: 6px;
                 font-size: 14px;
             }
             #bugFormModal {
@@ -219,11 +196,11 @@
                 font-size: 16px;
             }
             .attachment-row {
-                flex-direction: column; /* Stack on very small screens */
+                flex-direction: column;
                 align-items: stretch;
             }
             #addLinkButton {
-                width: 100%; /* Full-width on mobile */
+                width: 100%;
             }
         }
     </style>
