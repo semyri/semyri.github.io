@@ -18,7 +18,7 @@
         table { 
             width: 100%; 
             border-collapse: collapse; 
-            margin: 20px 0; /* Consistent spacing above and below */
+            margin-top: 20px; 
         }
         th, td { 
             border: 1px solid #ddd; 
@@ -43,6 +43,7 @@
         th.desc::after { 
             content: '↓'; 
         }
+        /* Color-coding by status */
         .status-open { 
             background-color: #ffcccc; 
         }
@@ -52,6 +53,7 @@
         .status-closed { 
             background-color: #ccffcc; 
         }
+        /* Color-coding by priority */
         .priority-high { 
             font-weight: bold; 
             color: red; 
@@ -62,9 +64,11 @@
         .priority-low { 
             color: green; 
         }
+        /* Pinned bugs */
         .pinned { 
             border-left: 5px solid blue; 
         }
+        /* Modal styles */
         #modalBackdrop {
             position: fixed;
             top: 0;
@@ -104,7 +108,7 @@
         }
         .header {
             display: flex;
-            justify-content: flex-start;
+            justify-content: flex-start; /* Adjusted since Logout is no longer here */
             align-items: flex-start;
             margin-bottom: 20px;
         }
@@ -116,35 +120,9 @@
         button {
             padding: 8px 16px;
             cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            transition: background-color 0.2s;
         }
         button:active {
             background-color: #ddd;
-        }
-        /* Button styling */
-        #addButton {
-            background-color: #800080; /* Purple */
-        }
-        #addButton:hover {
-            background-color: #4B0082; /* Dark purple on hover */
-            color: white;
-        }
-        #futureIdeasButton {
-            background-color: #008000; /* Green */
-        }
-        #futureIdeasButton:hover {
-            background-color: #006400; /* Dark green on hover */
-            color: white;
-        }
-        #logoutButton {
-            background-color: #90ee90; /* Light green */
-            margin-top: 20px; /* Space from table */
-        }
-        #logoutButton:hover {
-            background-color: #006400; /* Dark green on hover */
-            color: white;
         }
         label {
             display: block;
@@ -155,6 +133,7 @@
             box-sizing: border-box;
             margin-bottom: 10px;
         }
+        /* Attachment row styles */
         .attachment-row {
             display: flex;
             align-items: center;
@@ -167,11 +146,20 @@
         #addLinkButton {
             width: auto;
         }
+        /* Bug Tracker Container */
         #bugTrackerContainer {
-            position: relative;
-            min-height: 100vh; /* Ensures container fills viewport height if content is short */
+            position: relative; /* Allows absolute positioning of children */
+            min-height: 100vh; /* Ensures container takes full viewport height */
         }
+        #logoutButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        /* Responsive Styles */
         @media (max-width: 768px) {
+            /* Tablet adjustments */
             .header {
                 flex-direction: column;
                 align-items: stretch;
@@ -193,11 +181,14 @@
                 width: auto;
             }
             #logoutButton {
+                position: static; /* Reverts to flow on tablet */
                 width: 100%;
                 margin-top: 20px;
             }
         }
+
         @media (max-width: 600px) {
+            /* Phone adjustments */
             #bugTable {
                 display: block;
                 overflow-x: auto;
@@ -227,6 +218,7 @@
                 width: 100%;
             }
             #logoutButton {
+                position: static; /* Reverts to flow on phone */
                 width: 100%;
                 margin-top: 20px;
             }
@@ -237,6 +229,7 @@
     <div id="app">
         <!-- Authentication Container -->
         <div id="authContainer">
+            <!-- Login Form -->
             <div id="loginSection">
                 <h2>Login</h2>
                 <form id="loginForm">
@@ -248,6 +241,7 @@
                 </form>
                 <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
             </div>
+            <!-- Register Form -->
             <div id="registerSection" class="hidden">
                 <h2>Register</h2>
                 <form id="registerForm">
@@ -265,20 +259,20 @@
         <div id="bugTrackerContainer" class="hidden">
             <div class="header">
                 <div class="title-container">
-                    <h2 id="pageTitle">Buggi - Bugs</h2>
-                    <button id="addButton">Add Bug</button>
-                    <button id="futureIdeasButton">Future Ideas</button>
+                    <h2>Buggi</h2>
+                    <button id="addBugButton">Add Bug</button>
                 </div>
             </div>
-            <div id="filterContainer">
-                <label for="categoryFilter">Filter by Category:</label>
-                <select id="categoryFilter">
-                    <option value="all">All</option>
-                </select>
-            </div>
             <table id="bugTable">
-                <thead id="tableHeaders">
-                    <!-- Headers will be set dynamically -->
+                <thead>
+                    <tr>
+                        <th data-column="title">Title</th>
+                        <th data-column="status">Status</th>
+                        <th data-column="priority">Priority</th>
+                        <th data-column="date_found">Date Found</th>
+                        <th>Links</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody id="bugTableBody"></tbody>
             </table>
@@ -288,33 +282,35 @@
         <!-- Modal Backdrop -->
         <div id="modalBackdrop" class="hidden"></div>
 
-        <!-- Bug/Idea Form Modal -->
+        <!-- Bug Form Modal -->
         <div id="bugFormModal" class="hidden">
             <div id="bugFormContainer">
                 <h3 id="formTitle">Add Bug</h3>
                 <form id="bugForm">
                     <label for="title">Title:</label>
                     <input type="text" id="title" required>
-                    <label for="category" id="categoryLabel">Category:</label>
-                    <input type="text" id="category">
-                    <label for="description" id="descriptionLabel">Description:</label>
+                    <label for="description">Description:</label>
                     <textarea id="description" required></textarea>
-                    <label for="status" id="statusLabel">Status:</label>
+                    <label for="status">Status:</label>
                     <select id="status">
                         <option value="Open">Open</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Closed">Closed</option>
                     </select>
-                    <label for="priority" id="priorityLabel">Priority:</label>
+                    <label for="priority">Priority:</label>
                     <select id="priority">
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
                     </select>
-                    <label for="date_found" id="dateFoundLabel">Date Found:</label>
-                    <input type="date" id="date_found">
-                    <label for="linkInput">Link or Path:</label>
-                    <input type="text" id="linkInput" placeholder="Enter a link or path">
+                    <label for="date_found">Date Found:</label>
+                    <input type="date" id="date_found" required>
+                    <label for="linkInput">Add Link or Path:</label>
+                    <div class="attachment-row">
+                        <input type="text" id="linkInput" placeholder="Enter a link or path">
+                        <button type="button" id="addLinkButton">Add</button>
+                    </div>
+                    <div id="linksList"></div>
                     <button type="submit">Save</button>
                     <button type="button" id="cancelForm">Cancel</button>
                 </form>
