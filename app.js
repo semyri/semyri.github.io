@@ -3,7 +3,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyA2lgjG0kl8UDUboLaztO3jSer5OopD48s",
     authDomain: "buggi-3e1d2.firebaseapp.com",
     projectId: "buggi-3e1d2",    
-    appId: "1:810286785802:web:c6ba7069c591ebc801c6f3""
+    appId: "1:810286785802:web:c6ba7069c591ebc801c6f3"
 };
 
 // Initialize Firebase
