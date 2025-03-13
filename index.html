@@ -19,6 +19,7 @@
             width: 100%; 
             border-collapse: collapse; 
             margin-top: 20px; 
+            margin-bottom: 60px;
         }
         th, td { 
             border: 1px solid #ddd; 
@@ -43,7 +44,6 @@
         th.desc::after { 
             content: '↓'; 
         }
-        /* Color-coding by status */
         .status-open { 
             background-color: #ffcccc; 
         }
@@ -53,7 +53,6 @@
         .status-closed { 
             background-color: #ccffcc; 
         }
-        /* Color-coding by priority */
         .priority-high { 
             font-weight: bold; 
             color: red; 
@@ -64,11 +63,9 @@
         .priority-low { 
             color: green; 
         }
-        /* Pinned bugs */
         .pinned { 
             border-left: 5px solid blue; 
         }
-        /* Modal styles */
         #modalBackdrop {
             position: fixed;
             top: 0;
@@ -108,7 +105,7 @@
         }
         .header {
             display: flex;
-            justify-content: flex-start; /* Adjusted since Logout is no longer here */
+            justify-content: flex-start;
             align-items: flex-start;
             margin-bottom: 20px;
         }
@@ -120,9 +117,33 @@
         button {
             padding: 8px 16px;
             cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
         }
         button:active {
             background-color: #ddd;
+        }
+        #addButton {
+            background-color: #800080;
+        }
+        #addButton:hover {
+            background-color: #4B0082;
+            color: white;
+        }
+        #futureIdeasButton {
+            background-color: #008000;
+        }
+        #futureIdeasButton:hover {
+            background-color: #006400;
+            color: white;
+        }
+        #logoutButton {
+            background-color: #90ee90;
+        }
+        #logoutButton:hover {
+            background-color: #006400;
+            color: white;
         }
         label {
             display: block;
@@ -133,7 +154,6 @@
             box-sizing: border-box;
             margin-bottom: 10px;
         }
-        /* Attachment row styles */
         .attachment-row {
             display: flex;
             align-items: center;
@@ -146,20 +166,17 @@
         #addLinkButton {
             width: auto;
         }
-        /* Bug Tracker Container */
         #bugTrackerContainer {
-            position: relative; /* Allows absolute positioning of children */
-            min-height: 100vh; /* Ensures container takes full viewport height */
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 60px;
         }
         #logoutButton {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 20px;
         }
-
-        /* Responsive Styles */
         @media (max-width: 768px) {
-            /* Tablet adjustments */
             .header {
                 flex-direction: column;
                 align-items: stretch;
@@ -181,14 +198,11 @@
                 width: auto;
             }
             #logoutButton {
-                position: static; /* Reverts to flow on tablet */
-                width: 100%;
-                margin-top: 20px;
+                position: fixed;
+                width: auto;
             }
         }
-
         @media (max-width: 600px) {
-            /* Phone adjustments */
             #bugTable {
                 display: block;
                 overflow-x: auto;
@@ -218,9 +232,8 @@
                 width: 100%;
             }
             #logoutButton {
-                position: static; /* Reverts to flow on phone */
-                width: 100%;
-                margin-top: 20px;
+                position: fixed;
+                width: auto;
             }
         }
     </style>
@@ -229,7 +242,6 @@
     <div id="app">
         <!-- Authentication Container -->
         <div id="authContainer">
-            <!-- Login Form -->
             <div id="loginSection">
                 <h2>Login</h2>
                 <form id="loginForm">
@@ -241,7 +253,6 @@
                 </form>
                 <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
             </div>
-            <!-- Register Form -->
             <div id="registerSection" class="hidden">
                 <h2>Register</h2>
                 <form id="registerForm">
@@ -259,58 +270,57 @@
         <div id="bugTrackerContainer" class="hidden">
             <div class="header">
                 <div class="title-container">
-                    <h2>Buggi</h2>
-                    <button id="addBugButton">Add Bug</button>
+                    <h2 id="pageTitle">Buggi - Bugs</h2>
+                    <button id="addButton">Add Bug</button>
+                    <button id="futureIdeasButton">Future Ideas</button>
                 </div>
             </div>
+            <div id="filterContainer">
+                <label for="categoryFilter">Filter by Category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All</option>
+                </select>
+            </div>
             <table id="bugTable">
-                <thead>
-                    <tr>
-                        <th data-column="title">Title</th>
-                        <th data-column="status">Status</th>
-                        <th data-column="priority">Priority</th>
-                        <th data-column="date_found">Date Found</th>
-                        <th>Links</th>
-                        <th>Actions</th>
-                    </tr>
+                <thead id="tableHeaders">
+                    <!-- Headers will be set dynamically -->
                 </thead>
                 <tbody id="bugTableBody"></tbody>
             </table>
+            <div style="height: 60px;"></div> <!-- Spacer div -->
             <button id="logoutButton">Logout</button>
         </div>
 
         <!-- Modal Backdrop -->
         <div id="modalBackdrop" class="hidden"></div>
 
-        <!-- Bug Form Modal -->
+        <!-- Bug/Idea Form Modal -->
         <div id="bugFormModal" class="hidden">
             <div id="bugFormContainer">
                 <h3 id="formTitle">Add Bug</h3>
                 <form id="bugForm">
                     <label for="title">Title:</label>
                     <input type="text" id="title" required>
-                    <label for="description">Description:</label>
+                    <label for="category" id="categoryLabel">Category:</label>
+                    <input type="text" id="category">
+                    <label for="description" id="descriptionLabel">Description:</label>
                     <textarea id="description" required></textarea>
-                    <label for="status">Status:</label>
+                    <label for="status" id="statusLabel">Status:</label>
                     <select id="status">
                         <option value="Open">Open</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Closed">Closed</option>
                     </select>
-                    <label for="priority">Priority:</label>
+                    <label for="priority" id="priorityLabel">Priority:</label>
                     <select id="priority">
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
                     </select>
-                    <label for="date_found">Date Found:</label>
-                    <input type="date" id="date_found" required>
-                    <label for="linkInput">Add Link or Path:</label>
-                    <div class="attachment-row">
-                        <input type="text" id="linkInput" placeholder="Enter a link or path">
-                        <button type="button" id="addLinkButton">Add</button>
-                    </div>
-                    <div id="linksList"></div>
+                    <label for="date_found" id="dateFoundLabel">Date Found:</label>
+                    <input type="date" id="date_found">
+                    <label for="linkInput">Link or Path:</label>
+                    <input type="text" id="linkInput" placeholder="Enter a link or path">
                     <button type="submit">Save</button>
                     <button type="button" id="cancelForm">Cancel</button>
                 </form>
