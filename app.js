@@ -193,7 +193,7 @@ function populateBugTable(bugs) {
                 }
             }).join(', ')}</td>
             <td>
-                <button class="editButton" data-id="${bug.id}">Edit</button>
+                <button class="editButton" data-id="${bug.id}">View</button>
                 <button class="deleteButton" data-id="${bug.id}">Delete</button>
                 <button class="pinButton" data-id="${bug.id}">${bug.pinned ? 'Unpin' : 'Pin'}</button>
             </td>
@@ -261,7 +261,7 @@ function openEditForm(bugId) {
             document.getElementById('date_found').value = bug.date_found;
             currentLinks = bug.links.slice();
             displayLinks();
-            document.getElementById('formTitle').textContent = 'Edit Bug';
+            document.getElementById('formTitle').textContent = 'View / Edit Bug';
             editingBugId = bugId;
             showModal();
         } else {

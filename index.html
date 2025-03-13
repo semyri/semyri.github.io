@@ -5,26 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bug Tracker</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .hidden { display: none; }
-        #linksList div { margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; cursor: pointer; }
-        th[data-column] { position: relative; }
-        th[data-column]::after { content: ''; display: inline-block; margin-left: 5px; }
-        th.asc::after { content: '↑'; }
-        th.desc::after { content: '↓'; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+        }
+        .hidden { 
+            display: none; 
+        }
+        #linksList div { 
+            margin: 5px 0; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+            cursor: pointer; 
+        }
+        th[data-column] { 
+            position: relative; 
+        }
+        th[data-column]::after { 
+            content: ''; 
+            display: inline-block; 
+            margin-left: 5px; 
+        }
+        th.asc::after { 
+            content: '↑'; 
+        }
+        th.desc::after { 
+            content: '↓'; 
+        }
         /* Color-coding by status */
-        .status-open { background-color: #ffcccc; }
-        .status-in-progress { background-color: #ffffcc; }
-        .status-closed { background-color: #ccffcc; }
+        .status-open { 
+            background-color: #ffcccc; 
+        }
+        .status-in-progress { 
+            background-color: #ffffcc; 
+        }
+        .status-closed { 
+            background-color: #ccffcc; 
+        }
         /* Color-coding by priority */
-        .priority-high { font-weight: bold; color: red; }
-        .priority-medium { color: orange; }
-        .priority-low { color: green; }
+        .priority-high { 
+            font-weight: bold; 
+            color: red; 
+        }
+        .priority-medium { 
+            color: orange; 
+        }
+        .priority-low { 
+            color: green; 
+        }
         /* Pinned bugs */
-        .pinned { border-left: 5px solid blue; }
+        .pinned { 
+            border-left: 5px solid blue; 
+        }
         /* Modal styles */
         #modalBackdrop {
             position: fixed;
@@ -73,6 +116,115 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        button:active {
+            background-color: #ddd;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        /* New styles for attachment row */
+        .attachment-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        #linkInput {
+            flex-grow: 1; /* Takes up available space */
+        }
+        #addLinkButton {
+            width: auto; /* Prevents full-width styling */
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            /* Tablet adjustments */
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .title-container {
+                align-items: flex-start;
+            }
+            #bugFormModal {
+                width: 85%;
+                max-height: 85%;
+                padding: 15px;
+            }
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #addLinkButton {
+                width: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            /* Phone adjustments */
+            #bugTable {
+                border: 0;
+            }
+            #bugTable thead {
+                display: none;
+            }
+            #bugTable tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                padding: 10px;
+                background-color: #fff;
+            }
+            #bugTable tbody td {
+                display: block;
+                border: none;
+                padding: 5px 0;
+                text-align: left;
+                position: relative;
+            }
+            #bugTable tbody td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: inline-block;
+                width: 100px;
+                margin-right: 10px;
+            }
+            #bugTable tbody td:last-child {
+                text-align: center;
+            }
+            th, td {
+                font-size: 14px;
+            }
+            #bugFormModal {
+                width: 90%;
+                max-height: 90%;
+                padding: 10px;
+            }
+            #description {
+                height: 150px;
+            }
+            label, input, select, textarea {
+                font-size: 16px;
+            }
+            .attachment-row {
+                flex-direction: column; /* Stack on very small screens */
+                align-items: stretch;
+            }
+            #addLinkButton {
+                width: 100%; /* Full-width on mobile */
+            }
         }
     </style>
 </head>
@@ -157,8 +309,10 @@
                     <label for="date_found">Date Found:</label>
                     <input type="date" id="date_found" required>
                     <label for="linkInput">Add Link or Path:</label>
-                    <input type="text" id="linkInput" placeholder="Enter a link or path">
-                    <button type="button" id="addLinkButton">Add</button>
+                    <div class="attachment-row">
+                        <input type="text" id="linkInput" placeholder="Enter a link or path">
+                        <button type="button" id="addLinkButton">Add</button>
+                    </div>
                     <div id="linksList"></div>
                     <button type="submit">Save</button>
                     <button type="button" id="cancelForm">Cancel</button>
