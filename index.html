@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .hidden { display: none; }
+        #linksList div { margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Authentication Container -->
+        <div id="authContainer">
+            <div id="loginSection">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email" required><br>
+                    <label for="password">Password:</label><br>
+                    <input type="password" id="password" name="password" required><br>
+                    <button type="submit">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
+            </div>
+            <div id="registerSection" class="hidden">
+                <h2>Register</h2>
+                <form id="registerForm">
+                    <label for="regEmail">Email:</label><br>
+                    <input type="email" id="regEmail" name="regEmail" required><br>
+                    <label for="regPassword">Password:</label><br>
+                    <input type="password" id="regPassword" name="regPassword" required><br>
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+            </div>
+        </div>
+
+        <!-- Bug Tracker Container -->
+        <div id="bugTrackerContainer" class="hidden">
+            <h2>Bug Tracker</h2>
+            <button id="addBugButton">Add Bug</button>
+            <button id="logoutButton">Logout</button>
+            <table id="bugTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Date Found</th>
+                        <th>Links</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bugTableBody"></tbody>
+            </table>
+
+            <!-- Bug Form -->
+            <div id="bugFormContainer" class="hidden">
+                <h3 id="formTitle">Add Bug</h3>
+                <form id="bugForm">
+                    <label for="title">Title:</label><br>
+                    <input type="text" id="title" name="title" required><br>
+                    <label for="description">Description:</label><br>
+                    <textarea id="description" name="description" required></textarea><br>
+                    <label for="status">Status:</label><br>
+                    <select id="status" name="status">
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Closed">Closed</option>
+                    </select><br>
+                    <label for="priority">Priority:</label><br>
+                    <select id="priority" name="priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select><br>
+                    <label for="date_found">Date Found:</label><br>
+                    <input type="date" id="date_found" name="date_found" required><br>
+                    <label for="linkInput">Add Link:</label><br>
+                    <input type="url" id="linkInput" placeholder="https://example.com">
+                    <button type="button" id="addLinkButton">Add</button><br>
+                    <div id="linksList"></div>
+                    <button type="submit">Save</button>
+                    <button type="button" id="cancelForm">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Compatibility Layer) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
