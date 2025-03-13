@@ -11,43 +11,31 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Global variables
-let currentLinks = [];
-let editingBugId = null;
-let sortColumn = 'date_found'; // Default sort column
-let sortOrder = 'desc'; // Default sort order (newest first)
+let editingId = null;
+let editingMode = null;
+let sortColumn = 'date_found';
+let sortOrder = 'desc';
+let allBugs = [];
+let currentMode = 'bugs';
 
 // Authentication Functions
 function signIn(email, password) {
-    console.log('Attempting sign-in with:', email);
     auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            console.log('Signed in successfully:', userCredential.user.email);
-        })
         .catch((error) => {
-            console.error('Sign-in error:', error.code, error.message);
             alert('Login failed: ' + error.message);
         });
 }
 
 function createUser(email, password) {
-    console.log('Attempting registration with:', email);
     auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            console.log('User created successfully:', userCredential.user.email);
-        })
         .catch((error) => {
-            console.error('Registration error:', error.code, error.message);
             alert('Registration failed: ' + error.message);
         });
 }
 
 function signOutUser() {
     auth.signOut()
-        .then(() => {
-            console.log('Signed out successfully');
-        })
         .catch((error) => {
-            console.error('Sign-out error:', error);
             alert('Logout failed: ' + error.message);
         });
 }
@@ -55,33 +43,31 @@ function signOutUser() {
 // Bug Management Functions
 async function addBug(bugData) {
     try {
+        const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('bugs').add({
             ...bugData,
-            links: currentLinks,
+            links: linkInput,
             createdBy: auth.currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             pinned: false
         });
-        console.log('Bug added successfully');
         closeModal();
         loadBugs();
     } catch (e) {
-        console.error('Error adding bug:', e);
         alert('Failed to add bug: ' + e.message);
     }
 }
 
 async function updateBug(bugId, updatedData) {
     try {
+        const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('bugs').doc(bugId).update({
             ...updatedData,
-            links: currentLinks
+            links: linkInput
         });
-        console.log('Bug updated successfully');
         closeModal();
         loadBugs();
     } catch (e) {
-        console.error('Error updating bug:', e);
         alert('Failed to update bug: ' + e.message);
     }
 }
@@ -89,76 +75,161 @@ async function updateBug(bugId, updatedData) {
 async function deleteBug(bugId) {
     try {
         await db.collection('bugs').doc(bugId).delete();
-        console.log('Bug deleted successfully');
         loadBugs();
     } catch (e) {
-        console.error('Error deleting bug:', e);
         alert('Failed to delete bug: ' + e.message);
     }
 }
 
-async function togglePin(bugId) {
+async function togglePinBug(bugId) {
     try {
         const bugRef = db.collection('bugs').doc(bugId);
         const bugDoc = await bugRef.get();
         const currentPinned = bugDoc.data().pinned || false;
         await bugRef.update({ pinned: !currentPinned });
-        console.log('Bug pinned state toggled');
         loadBugs();
     } catch (e) {
-        console.error('Error toggling pin:', e);
         alert('Failed to toggle pin: ' + e.message);
     }
 }
 
 async function loadBugs() {
+    if (!auth.currentUser) return;
     try {
         const querySnapshot = await db.collection('bugs')
             .where('createdBy', '==', auth.currentUser.uid)
             .get();
-        let bugs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        const statusOrder = ["Open", "In Progress", "Closed"];
-        const priorityOrder = ["Low", "Medium", "High"];
-
-        const comparator = (a, b) => {
-            let valA, valB;
-            if (sortColumn === 'status') {
-                valA = statusOrder.indexOf(a.status);
-                valB = statusOrder.indexOf(b.status);
-            } else if (sortColumn === 'priority') {
-                valA = priorityOrder.indexOf(a.priority);
-                valB = priorityOrder.indexOf(b.priority);
-            } else if (sortColumn === 'date_found') {
-                valA = new Date(a.date_found);
-                valB = new Date(b.date_found);
-            } else {
-                valA = a[sortColumn].toString().toLowerCase();
-                valB = b[sortColumn].toString().toLowerCase();
-            }
-            if (typeof valA === 'string') {
-                return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            } else {
-                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-                return 0;
-            }
-        };
-
-        const pinnedBugs = bugs.filter(bug => bug.pinned).sort(comparator);
-        const unpinnedBugs = bugs.filter(bug => !bug.pinned).sort(comparator);
-        const sortedBugs = [...pinnedBugs, ...unpinnedBugs];
-
-        populateBugTable(sortedBugs);
+        allBugs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        filterAndPopulateBugs();
     } catch (e) {
-        console.error('Error loading bugs:', e);
         alert('Failed to load bugs: ' + e.message);
+    }
+}
+
+function filterAndPopulateBugs() {
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    let filteredBugs = selectedCategory === 'all' ? allBugs : allBugs.filter(bug => bug.category === selectedCategory);
+
+    const statusOrder = ["Open", "In Progress", "Closed"];
+    const priorityOrder = ["Low", "Medium", "High"];
+
+    const comparator = (a, b) => {
+        let valA, valB;
+        if (sortColumn === 'status') {
+            valA = statusOrder.indexOf(a.status);
+            valB = statusOrder.indexOf(b.status);
+        } else if (sortColumn === 'priority') {
+            valA = priorityOrder.indexOf(a.priority);
+            valB = priorityOrder.indexOf(b.priority);
+        } else if (sortColumn === 'date_found') {
+            valA = new Date(a.date_found);
+            valB = new Date(b.date_found);
+        } else {
+            valA = a[sortColumn]?.toString().toLowerCase() || '';
+            valB = b[sortColumn]?.toString().toLowerCase() || '';
+        }
+        if (typeof valA === 'string') {
+            return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        } else {
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        }
+    };
+
+    const pinnedBugs = filteredBugs.filter(bug => bug.pinned).sort(comparator);
+    const unpinnedBugs = filteredBugs.filter(bug => !bug.pinned).sort(comparator);
+    const sortedBugs = [...pinnedBugs, ...unpinnedBugs];
+    populateTable(sortedBugs, 'bugs');
+
+    const categories = [...new Set(allBugs.map(bug => bug.category).filter(cat => cat))];
+    const categoryFilterElement = document.getElementById('categoryFilter');
+    categoryFilterElement.innerHTML = '<option value="all">All</option>';
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        if (cat === selectedCategory) option.selected = true;
+        categoryFilterElement.appendChild(option);
+    });
+}
+
+// Idea Management Functions
+async function addIdea(ideaData) {
+    try {
+        const linkInput = document.getElementById('linkInput').value.trim();
+        await db.collection('ideas').add({
+            ...ideaData,
+            links: linkInput,
+            createdBy: auth.currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            pinned: false
+        });
+        closeModal();
+        loadIdeas();
+    } catch (e) {
+        alert('Failed to add idea: ' + e.message);
+    }
+}
+
+async function updateIdea(ideaId, updatedData) {
+    try {
+        const linkInput = document.getElementById('linkInput').value.trim();
+        await db.collection('ideas').doc(ideaId).update({
+            ...updatedData,
+            links: linkInput
+        });
+        closeModal();
+        loadIdeas();
+    } catch (e) {
+        alert('Failed to update idea: ' + e.message);
+    }
+}
+
+async function deleteIdea(ideaId) {
+    try {
+        await db.collection('ideas').doc(ideaId).delete();
+        loadIdeas();
+    } catch (e) {
+        alert('Failed to delete idea: ' + e.message);
+    }
+}
+
+async function togglePinIdea(ideaId) {
+    try {
+        const ideaRef = db.collection('ideas').doc(ideaId);
+        const ideaDoc = await ideaRef.get();
+        const currentPinned = ideaDoc.data().pinned || false;
+        await ideaRef.update({ pinned: !currentPinned });
+        loadIdeas();
+    } catch (e) {
+        alert('Failed to toggle pin: ' + e.message);
+    }
+}
+
+async function loadIdeas() {
+    if (!auth.currentUser) return;
+    try {
+        const querySnapshot = await db.collection('ideas')
+            .where('createdBy', '==', auth.currentUser.uid)
+            .get();
+        const ideas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const comparator = (a, b) => {
+            const valA = a.title.toLowerCase();
+            valB = b.title.toLowerCase();
+            return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        };
+        const pinnedIdeas = ideas.filter(idea => idea.pinned).sort(comparator);
+        const unpinnedIdeas = ideas.filter(idea => !idea.pinned).sort(comparator);
+        const sortedIdeas = [...pinnedIdeas, ...unpinnedIdeas];
+        populateTable(sortedIdeas, 'ideas');
+    } catch (e) {
+        alert('Failed to load ideas: ' + e.message);
     }
 }
 
 // UI Functions
 function showLoginForm() {
-    console.log('Showing login form');
     document.getElementById('authContainer').classList.remove('hidden');
     document.getElementById('bugTrackerContainer').classList.add('hidden');
     document.getElementById('bugFormModal').classList.add('hidden');
@@ -166,244 +237,180 @@ function showLoginForm() {
 }
 
 function showBugTracker() {
-    console.log('Showing bug tracker');
     document.getElementById('authContainer').classList.add('hidden');
     document.getElementById('bugTrackerContainer').classList.remove('hidden');
-    loadBugs();
+    setMode(currentMode);
 }
 
-function populateBugTable(bugs) {
+function populateTable(data, mode) {
     const tableBody = document.getElementById('bugTableBody');
     tableBody.innerHTML = '';
-    bugs.forEach(bug => {
-        const row = document.createElement('tr');
-        row.classList.add(`status-${bug.status.toLowerCase().replace(' ', '-')}`);
-        row.classList.add(`priority-${bug.priority.toLowerCase()}`);
-        if (bug.pinned) row.classList.add('pinned');
-        row.innerHTML = `
-            <td>${bug.title}</td>
-            <td>${bug.status}</td>
-            <td>${bug.priority}</td>
-            <td>${bug.date_found}</td>
-            <td>${bug.links.map(link => {
-                if (link.startsWith('http://') || link.startsWith('https://')) {
-                    return `<a href="${link}" target="_blank">${link}</a>`;
-                } else {
-                    return link;
-                }
-            }).join(', ')}</td>
-            <td>
-                <button class="editButton" data-id="${bug.id}">View</button>
-                <button class="deleteButton" data-id="${bug.id}">Delete</button>
-                <button class="pinButton" data-id="${bug.id}">${bug.pinned ? 'Unpin' : 'Pin'}</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-function displayLinks() {
-    const linksList = document.getElementById('linksList');
-    linksList.innerHTML = '';
-    currentLinks.forEach((link, index) => {
-        const linkDiv = document.createElement('div');
-        linkDiv.innerHTML = `${link} <button type="button" data-index="${index}">Remove</button>`;
-        linksList.appendChild(linkDiv);
-    });
-}
-
-function resetFormFields() {
-    document.getElementById('bugForm').reset();
-    currentLinks = [];
-    displayLinks();
-    document.getElementById('formTitle').textContent = 'Add Bug';
-    editingBugId = null;
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date_found').value = today;
-}
-
-function showModal() {
-    const modal = document.getElementById('bugFormModal');
-    const backdrop = document.getElementById('modalBackdrop');
-    if (modal && backdrop) {
-        modal.classList.remove('hidden');
-        backdrop.classList.remove('hidden');
-        modal.style.display = 'block';
-        backdrop.style.display = 'block';
+    if (mode === 'bugs') {
+        data.forEach(bug => {
+            const row = document.createElement('tr');
+            row.classList.add(`status-${bug.status.toLowerCase().replace(' ', '-')}`);
+            row.classList.add(`priority-${bug.priority.toLowerCase()}`);
+            if (bug.pinned) row.classList.add('pinned');
+            const linkText = Array.isArray(bug.links) ? bug.links.join(', ') : (bug.links || '');
+            row.innerHTML = `
+                <td>${bug.title}</td>
+                <td>${bug.category || 'N/A'}</td>
+                <td>${bug.status}</td>
+                <td>${bug.priority}</td>
+                <td>${bug.date_found}</td>
+                <td>${linkText.startsWith('http') ? `<a href="${linkText}" target="_blank">${linkText}</a>` : linkText}</td>
+                <td>
+                    <button class="editButton" data-id="${bug.id}">View</button>
+                    <button class="deleteButton" data-id="${bug.id}">Delete</button>
+                    <button class="pinButton" data-id="${bug.id}">${bug.pinned ? 'Unpin' : 'Pin'}</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } else {
+        data.forEach(idea => {
+            const row = document.createElement('tr');
+            if (idea.pinned) row.classList.add('pinned');
+            const linkText = Array.isArray(idea.links) ? idea.links.join(', ') : (idea.links || '');
+            row.innerHTML = `
+                <td>${idea.title}</td>
+                <td>${idea.idea}</td>
+                <td>${linkText.startsWith('http') ? `<a href="${linkText}" target="_blank">${linkText}</a>` : linkText}</td>
+                <td>
+                    <button class="editButton" data-id="${idea.id}">View</button>
+                    <button class="deleteButton" data-id="${idea.id}">Delete</button>
+                    <button class="pinButton" data-id="${idea.id}">${idea.pinned ? 'Unpin' : 'Pin'}</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
     }
 }
 
-function closeModal() {
-    const modal = document.getElementById('bugFormModal');
-    const backdrop = document.getElementById('modalBackdrop');
-    if (modal && backdrop) {
-        modal.classList.add('hidden');
-        backdrop.classList.add('hidden');
-        modal.style.display = 'none';
-        backdrop.style.display = 'none';
-    }
-}
+function setupForm(mode, isEdit = false, data = {}) {
+    const formTitle = document.getElementById('formTitle');
+    const categoryLabel = document.getElementById('categoryLabel');
+    const categoryInput = document.getElementById('category');
+    const descriptionLabel = document.getElementById('descriptionLabel');
+    const descriptionInput = document.getElementById('description');
+    const statusLabel = document.getElementById('statusLabel');
+    const statusSelect = document.getElementById('status');
+    const priorityLabel = document.getElementById('priorityLabel');
+    const prioritySelect = document.getElementById('priority');
+    const dateFoundLabel = document.getElementById('dateFoundLabel');
+    const dateFoundInput = document.getElementById('date_found');
 
-function openAddBugForm() {
-    resetFormFields();
+    if (mode === 'bugs') {
+        formTitle.textContent = isEdit ? 'View / Edit Bug' : 'Add Bug';
+        categoryLabel.style.display = 'block';
+        categoryInput.style.display = 'block';
+        descriptionLabel.textContent = 'Description:';
+        statusLabel.style.display = 'block';
+        statusSelect.style.display = 'block';
+        priorityLabel.style.display = 'block';
+        prioritySelect.style.display = 'block';
+        dateFoundLabel.style.display = 'block';
+        dateFoundInput.style.display = 'block';
+    } else {
+        formTitle.textContent = isEdit ? 'View / Edit Idea' : 'Add Idea';
+        categoryLabel.style.display = 'none';
+        categoryInput.style.display = 'none';
+        descriptionLabel.textContent = 'Idea:';
+        statusLabel.style.display = 'none';
+        statusSelect.style.display = 'none';
+        priorityLabel.style.display = 'none';
+        prioritySelect.style.display = 'none';
+        dateFoundLabel.style.display = 'none';
+        dateFoundInput.style.display = 'none';
+    }
+
+    if (isEdit) {
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('linkInput').value = Array.isArray(data.links) ? data.links.join(', ') : (data.links || '');
+        if (mode === 'bugs') {
+            document.getElementById('category').value = data.category || '';
+            document.getElementById('description').value = data.description || '';
+            document.getElementById('status').value = data.status || 'Open';
+            document.getElementById('priority').value = data.priority || 'Low';
+            document.getElementById('date_found').value = data.date_found || '';
+        } else {
+            document.getElementById('description').value = data.idea || '';
+        }
+    } else {
+        document.getElementById('bugForm').reset();
+        document.getElementById('linkInput').value = '';
+        if (mode === 'bugs') {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date_found').value = today;
+        }
+    }
     showModal();
 }
 
-function openEditForm(bugId) {
-    console.log('Opening edit form for bug ID:', bugId);
-    db.collection('bugs').doc(bugId).get().then(doc => {
+function openAddForm() {
+    setupForm(currentMode);
+}
+
+function openEditForm(id, mode) {
+    const collection = mode === 'bugs' ? 'bugs' : 'ideas';
+    db.collection(collection).doc(id).get().then(doc => {
         if (doc.exists) {
-            const bug = doc.data();
-            document.getElementById('title').value = bug.title;
-            document.getElementById('description').value = bug.description;
-            document.getElementById('status').value = bug.status;
-            document.getElementById('priority').value = bug.priority;
-            document.getElementById('date_found').value = bug.date_found;
-            currentLinks = bug.links.slice();
-            displayLinks();
-            document.getElementById('formTitle').textContent = 'View / Edit Bug';
-            editingBugId = bugId;
-            showModal();
+            const data = doc.data();
+            setupForm(mode, true, data);
+            editingId = id;
+            editingMode = mode;
         } else {
-            console.error('Bug document does not exist');
-            alert('Bug not found');
+            alert('Item not found');
         }
     }).catch(e => {
-        console.error('Error fetching bug for edit:', e);
-        alert('Failed to load bug for editing: ' + e.message);
+        alert('Failed to load item: ' + e.message);
     });
 }
 
-// Event Listeners
-auth.onAuthStateChanged(user => {
-    if (user) {
-        console.log('User authenticated:', user.email);
-        showBugTracker();
+function setMode(mode) {
+    currentMode = mode;
+    const addButton = document.getElementById('addButton');
+    const futureIdeasButton = document.getElementById('futureIdeasButton');
+    
+    // Update button active states
+    if (mode === 'bugs') {
+        addButton.classList.add('active');
+        futureIdeasButton.classList.remove('active');
+        document.getElementById('pageTitle').textContent = 'Buggi - Bugs';
+        document.getElementById('addButton').textContent = 'Add Bug';
+        document.getElementById('futureIdeasButton').textContent = 'Future Ideas';
+        document.getElementById('filterContainer').style.display = 'block';
+        document.getElementById('tableHeaders').innerHTML = `
+            <tr>
+                <th data-column="title">Title</th>
+                <th data-column="category">Category</th>
+                <th data-column="status">Status</th>
+                <th data-column="priority">Priority</th>
+                <th data-column="date_found">Date Found</th>
+                <th>Links</th>
+                <th>Actions</th>
+            </tr>
+        `;
+        loadBugs();
     } else {
-        console.log('No user authenticated');
-        showLoginForm();
+        addButton.classList.remove('active');
+        futureIdeasButton.classList.add('active');
+        document.getElementById('pageTitle').textContent = 'Buggi - Future Ideas';
+        document.getElementById('addButton').textContent = 'Add Idea';
+        document.getElementById('futureIdeasButton').textContent = 'Back to Bugs';
+        document.getElementById('filterContainer').style.display = 'none';
+        document.getElementById('tableHeaders').innerHTML = `
+            <tr>
+                <th data-column="title">Title</th>
+                <th data-column="idea">Idea</th>
+                <th>Links</th>
+                <th>Actions</th>
+            </tr>
+        `;
+        loadIdeas();
     }
-});
 
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    loginForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        signIn(email, password);
-    });
-}
-
-const registerForm = document.getElementById('registerForm');
-if (registerForm) {
-    registerForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        createUser(email, password);
-    });
-}
-
-const showRegister = document.getElementById('showRegister');
-if (showRegister) {
-    showRegister.addEventListener('click', () => {
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('registerSection').classList.remove('hidden');
-    });
-}
-
-const showLogin = document.getElementById('showLogin');
-if (showLogin) {
-    showLogin.addEventListener('click', () => {
-        document.getElementById('registerSection').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
-    });
-}
-
-const logoutButton = document.getElementById('logoutButton');
-if (logoutButton) {
-    logoutButton.addEventListener('click', signOutUser);
-}
-
-const addBugButton = document.getElementById('addBugButton');
-if (addBugButton) {
-    addBugButton.addEventListener('click', openAddBugForm);
-}
-
-const addLinkButton = document.getElementById('addLinkButton');
-if (addLinkButton) {
-    addLinkButton.addEventListener('click', () => {
-        const linkInput = document.getElementById('linkInput');
-        const link = linkInput.value.trim();
-        if (link) {
-            currentLinks.push(link);
-            displayLinks();
-            linkInput.value = '';
-        } else {
-            alert('Please enter a link or path');
-        }
-    });
-}
-
-const linksList = document.getElementById('linksList');
-if (linksList) {
-    linksList.addEventListener('click', e => {
-        if (e.target.tagName === 'BUTTON') {
-            const index = parseInt(e.target.getAttribute('data-index'));
-            currentLinks.splice(index, 1);
-            displayLinks();
-        }
-    });
-}
-
-const bugForm = document.getElementById('bugForm');
-if (bugForm) {
-    bugForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const bugData = {
-            title: document.getElementById('title').value,
-            description: document.getElementById('description').value,
-            status: document.getElementById('status').value,
-            priority: document.getElementById('priority').value,
-            date_found: document.getElementById('date_found').value
-        };
-        if (editingBugId) {
-            updateBug(editingBugId, bugData);
-        } else {
-            addBug(bugData);
-        }
-    });
-}
-
-const cancelForm = document.getElementById('cancelForm');
-if (cancelForm) {
-    cancelForm.addEventListener('click', closeModal);
-}
-
-const bugTableBody = document.getElementById('bugTableBody');
-if (bugTableBody) {
-    bugTableBody.addEventListener('click', e => {
-        const target = e.target;
-        if (target.classList.contains('editButton')) {
-            const bugId = target.getAttribute('data-id');
-            console.log('Edit button clicked for bug ID:', bugId);
-            openEditForm(bugId);
-        } else if (target.classList.contains('deleteButton')) {
-            const bugId = target.getAttribute('data-id');
-            if (confirm('Are you sure you want to delete this bug?')) {
-                deleteBug(bugId);
-            }
-        } else if (target.classList.contains('pinButton')) {
-            const bugId = target.getAttribute('data-id');
-            togglePin(bugId);
-        }
-    });
-}
-
-const tableHeaders = document.querySelectorAll('#bugTable th[data-column]');
-if (tableHeaders.length > 0) {
-    tableHeaders.forEach(th => {
+    document.querySelectorAll('#bugTable th[data-column]').forEach(th => {
         th.addEventListener('click', () => {
             const column = th.getAttribute('data-column');
             if (sortColumn === column) {
@@ -414,12 +421,118 @@ if (tableHeaders.length > 0) {
             }
             document.querySelectorAll('#bugTable th').forEach(header => header.classList.remove('asc', 'desc'));
             th.classList.add(sortOrder);
-            loadBugs();
+            if (currentMode === 'bugs') {
+                filterAndPopulateBugs();
+            } else {
+                loadIdeas();
+            }
         });
     });
 }
 
-const modalBackdrop = document.getElementById('modalBackdrop');
-if (modalBackdrop) {
-    modalBackdrop.addEventListener('click', closeModal);
+function showModal() {
+    document.getElementById('bugFormModal').classList.remove('hidden');
+    document.getElementById('modalBackdrop').classList.remove('hidden');
 }
+
+function closeModal() {
+    document.getElementById('bugFormModal').classList.add('hidden');
+    document.getElementById('modalBackdrop').classList.add('hidden');
+}
+
+// Event Listeners
+auth.onAuthStateChanged(user => {
+    if (user) {
+        showBugTracker();
+    } else {
+        showLoginForm();
+    }
+});
+
+document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    signIn(email, password);
+});
+
+document.getElementById('registerForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    createUser(email, password);
+});
+
+document.getElementById('showRegister').addEventListener('click', () => {
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('registerSection').classList.remove('hidden');
+});
+
+document.getElementById('showLogin').addEventListener('click', () => {
+    document.getElementById('registerSection').classList.add('hidden');
+    document.getElementById('loginSection').classList.remove('hidden');
+});
+
+document.getElementById('logoutButton').addEventListener('click', signOutUser);
+
+document.getElementById('addButton').addEventListener('click', openAddForm);
+
+document.getElementById('futureIdeasButton').addEventListener('click', () => {
+    setMode(currentMode === 'bugs' ? 'ideas' : 'bugs');
+});
+
+document.getElementById('categoryFilter').addEventListener('change', filterAndPopulateBugs);
+
+document.getElementById('bugForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const title = document.getElementById('title').value;
+    if (currentMode === 'bugs') {
+        const category = document.getElementById('category').value;
+        const description = document.getElementById('description').value;
+        const status = document.getElementById('status').value;
+        const priority = document.getElementById('priority').value;
+        const date_found = document.getElementById('date_found').value;
+        const bugData = { title, category, description, status, priority, date_found };
+        if (editingId && editingMode === 'bugs') {
+            updateBug(editingId, bugData);
+        } else {
+            addBug(bugData);
+        }
+    } else {
+        const idea = document.getElementById('description').value;
+        const ideaData = { title, idea };
+        if (editingId && editingMode === 'ideas') {
+            updateIdea(editingId, ideaData);
+        } else {
+            addIdea(ideaData);
+        }
+    }
+});
+
+document.getElementById('cancelForm').addEventListener('click', closeModal);
+
+document.getElementById('bugTableBody').addEventListener('click', e => {
+    const target = e.target;
+    if (target.classList.contains('editButton')) {
+        const id = target.getAttribute('data-id');
+        openEditForm(id, currentMode);
+    } else if (target.classList.contains('deleteButton')) {
+        const id = target.getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this item?')) {
+            if (currentMode === 'bugs') {
+                deleteBug(id);
+            } else {
+                deleteIdea(id);
+            }
+        }
+    } else if (target.classList.contains('pinButton')) {
+        const id = target.getAttribute('data-id');
+        if (currentMode === 'bugs') {
+            togglePinBug(id);
+        } else {
+            togglePinIdea(id);
+        }
+    }
+});
+
+document.getElementById('modalBackdrop').addEventListener('click', closeModal);
