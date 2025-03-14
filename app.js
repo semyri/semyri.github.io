@@ -46,7 +46,7 @@ async function addBug(bugData) {
         const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('bugs').add({
             ...bugData,
-            links: linkInput, // Stored as a string
+            links: linkInput,
             createdBy: auth.currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             pinned: false
@@ -63,7 +63,7 @@ async function updateBug(bugId, updatedData) {
         const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('bugs').doc(bugId).update({
             ...updatedData,
-            links: linkInput // Stored as a string
+            links: linkInput
         });
         closeModal();
         loadBugs();
@@ -160,7 +160,7 @@ async function addIdea(ideaData) {
         const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('ideas').add({
             ...ideaData,
-            links: linkInput, // Stored as a string
+            links: linkInput,
             createdBy: auth.currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             pinned: false
@@ -177,7 +177,7 @@ async function updateIdea(ideaId, updatedData) {
         const linkInput = document.getElementById('linkInput').value.trim();
         await db.collection('ideas').doc(ideaId).update({
             ...updatedData,
-            links: linkInput // Stored as a string
+            links: linkInput
         });
         closeModal();
         loadIdeas();
@@ -364,6 +364,8 @@ function setupForm(mode, isEdit = false, data = {}) {
 }
 
 function openAddForm() {
+    editingId = null;       // Reset editing ID
+    editingMode = null;     // Reset editing mode
     setupForm(currentMode);
 }
 
@@ -449,6 +451,8 @@ function showModal() {
 function closeModal() {
     document.getElementById('bugFormModal').classList.add('hidden');
     document.getElementById('modalBackdrop').classList.add('hidden');
+    editingId = null;       // Reset editing ID
+    editingMode = null;     // Reset editing mode
 }
 
 // Event Listeners
