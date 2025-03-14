@@ -215,8 +215,17 @@ async function loadIdeas() {
             .get();
         const ideas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const comparator = (a, b) => {
-            const valA = a.title.toLowerCase();
-            valB = b.title.toLowerCase();
+            let valA, valB;
+            if (sortColumn === 'title') {
+                valA = a.title.toLowerCase();
+                valB = b.title.toLowerCase();
+            } else if (sortColumn === 'idea') {
+                valA = a.idea.toLowerCase();
+                valB = b.idea.toLowerCase();
+            } else {
+                valA = a.title.toLowerCase(); // Default to title
+                valB = b.title.toLowerCase();
+            }
             return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
         };
         const pinnedIdeas = ideas.filter(idea => idea.pinned).sort(comparator);
@@ -364,8 +373,8 @@ function setupForm(mode, isEdit = false, data = {}) {
 }
 
 function openAddForm() {
-    editingId = null;       // Reset editing ID
-    editingMode = null;     // Reset editing mode
+    editingId = null;
+    editingMode = null;
     setupForm(currentMode);
 }
 
@@ -387,13 +396,14 @@ function openEditForm(id, mode) {
 
 function setMode(mode) {
     currentMode = mode;
+    const bugsTab = document.getElementById('bugsTab');
+    const ideasTab = document.getElementById('ideasTab');
     const addButton = document.getElementById('addButton');
-    const futureIdeasButton = document.getElementById('futureIdeasButton');
-    
+
     if (mode === 'bugs') {
-        document.getElementById('pageTitle').textContent = 'Buggi - Bugs';
-        document.getElementById('addButton').textContent = 'Add Bug';
-        document.getElementById('futureIdeasButton').textContent = 'Future Ideas';
+        bugsTab.classList.add('active');
+        ideasTab.classList.remove('active');
+        addButton.textContent = 'Add Bug';
         document.getElementById('filterContainer').style.display = 'block';
         document.getElementById('tableHeaders').innerHTML = `
             <tr>
@@ -408,9 +418,9 @@ function setMode(mode) {
         `;
         loadBugs();
     } else {
-        document.getElementById('pageTitle').textContent = 'Buggi - Future Ideas';
-        document.getElementById('addButton').textContent = 'Add Idea';
-        document.getElementById('futureIdeasButton').textContent = 'Back to Bugs';
+        ideasTab.classList.add('active');
+        bugsTab.classList.remove('active');
+        addButton.textContent = 'Add Idea';
         document.getElementById('filterContainer').style.display = 'none';
         document.getElementById('tableHeaders').innerHTML = `
             <tr>
@@ -451,8 +461,8 @@ function showModal() {
 function closeModal() {
     document.getElementById('bugFormModal').classList.add('hidden');
     document.getElementById('modalBackdrop').classList.add('hidden');
-    editingId = null;       // Reset editing ID
-    editingMode = null;     // Reset editing mode
+    editingId = null;
+    editingMode = null;
 }
 
 // Event Listeners
@@ -492,9 +502,8 @@ document.getElementById('logoutButton').addEventListener('click', signOutUser);
 
 document.getElementById('addButton').addEventListener('click', openAddForm);
 
-document.getElementById('futureIdeasButton').addEventListener('click', () => {
-    setMode(currentMode === 'bugs' ? 'ideas' : 'bugs');
-});
+document.getElementById('bugsTab').addEventListener('click', () => setMode('bugs'));
+document.getElementById('ideasTab').addEventListener('click', () => setMode('ideas'));
 
 document.getElementById('categoryFilter').addEventListener('change', filterAndPopulateBugs);
 
