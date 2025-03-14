@@ -171,11 +171,6 @@
             min-height: 100vh;
             padding-bottom: 60px;
         }
-        #logoutButton {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-        }
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -195,10 +190,6 @@
                 margin-bottom: 10px;
             }
             #addLinkButton {
-                width: auto;
-            }
-            #logoutButton {
-                position: fixed;
                 width: auto;
             }
         }
@@ -231,9 +222,8 @@
             #addLinkButton {
                 width: 100%;
             }
-            #logoutButton {
-                position: fixed;
-                width: auto;
+            button {
+                min-height: 44px; /* Ensures buttons are easy to tap on mobile */
             }
         }
     </style>
@@ -287,7 +277,6 @@
                 </thead>
                 <tbody id="bugTableBody"></tbody>
             </table>
-            <div style="height: 60px;"></div> <!-- Spacer div -->
             <button id="logoutButton">Logout</button>
         </div>
 
