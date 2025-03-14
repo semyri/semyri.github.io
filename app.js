@@ -498,6 +498,33 @@ document.getElementById('showLogin').addEventListener('click', () => {
     document.getElementById('loginSection').classList.remove('hidden');
 });
 
+document.getElementById('resetPasswordLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const resetLink = document.getElementById('resetPasswordLink');
+    
+    if (!email) {
+        alert('Please enter your email address first');
+        return;
+    }
+    
+    resetLink.style.pointerEvents = 'none'; // Disable clicking
+    resetLink.textContent = 'Sending...';
+    
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            alert('Password reset email sent! Check your inbox.');
+            resetLink.textContent = 'Forgot Password?';
+            resetLink.style.pointerEvents = 'auto';
+        })
+        .catch((error) => {
+            alert('Error sending password reset email: ' + error.message);
+            resetLink.textContent = 'Forgot Password?';
+            resetLink.style.pointerEvents = 'auto';
+        });
+});
+
 document.getElementById('logoutButton').addEventListener('click', signOutUser);
 
 document.getElementById('addButton').addEventListener('click', openAddForm);
